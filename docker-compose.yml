@@ -8,7 +8,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      test: [ "CMD-SHELL", "pg_isready -U app -d app" ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -20,17 +20,19 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://app:app@db:5432/app
       SECRET_KEY: dev_change_me
-      CORS_ORIGINS: http://localhost:3000,http://frontend:3000
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://frontend:3000
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8000/health" ]
       interval: 10s
       timeout: 3s
       retries: 10
+    volumes:
+      - ./backend:/app
 
   frontend:
     build: ./frontend
@@ -45,8 +47,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: sh -lc "npm ci && npm run dev"
+    command: sh -lc "npm install --no-audit --legacy-peer-deps && npm run dev"
 
 volumes:
   pgdata:
+
 

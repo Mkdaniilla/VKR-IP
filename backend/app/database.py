@@ -2,7 +2,9 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+from app.core.settings import settings
+
+DATABASE_URL = settings.DATABASE_URL
 
 class Base(DeclarativeBase):
     pass

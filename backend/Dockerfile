@@ -9,6 +9,9 @@ WORKDIR /app
 # Копируем всё из корня проекта (включая app/, requirements.txt и т.д.)
 COPY . /app
 
+# ✅ Явно добавляем шрифты (чтобы DejaVuLGCSans.ttf точно попал в образ)
+COPY ./app/static/fonts /app/static/fonts
+
 # Установка зависимостей
 RUN pip install --no-cache-dir -r requirements.txt
 

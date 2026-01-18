@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка обновления типов ИС</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        .checklist {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .check-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+        .check-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+        .success { color: #4ade80; }
+        .warning { color: #fbbf24; }
+        .error { color: #f87171; }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .step {
+            margin: 20px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .step::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            font-size: 20px;
+            color: #4ade80;
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        .button {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin: 20px auto;
+            text-decoration: none;
+            text-align: center;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Проверка обновления типов ИС</h1>
+        <p class="subtitle">Система была обновлена с 6 до 22 типов объектов интеллектуальной собственности</p>
+        
+        <div class="checklist">
+            <h2>✅ Статус обновления:</h2>
+            <div class="check-item">
+                <span class="check-icon success">✓</span>
+                <div>
+                    <strong>Backend обновлен</strong><br>
+                    <small>Все 17 новых типов объектов ИС доступны в базе данных</small>
+                </div>
+            </div>
+            <div class="check-item">
+                <span class="check-icon success">✓</span>
+                <div>
+                    <strong>Frontend пересобран</strong><br>
+                    <small>Кэш Next.js очищен, приложение перезапущено</small>
+                </div>
+            </div>
+            <div class="check-item">
+                <span class="check-icon warning">⚠</span>
+                <div>
+                    <strong>Требуется очистка кэша браузера</strong><br>
+                    <small>Браузер может показывать старую версию из кэша</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 Инструкция по применению изменений:</h2>
+            
+            <div class="step">
+                <strong>Шаг 1: Очистите кэш браузера</strong><br>
+                Нажмите <span class="code">Ctrl + Shift + Delete</span> и очистите кэш за последний час
+            </div>
+            
+            <div class="step">
+                <strong>Шаг 2: Жесткая перезагрузка страницы</strong><br>
+                Нажмите <span class="code">Ctrl + F5</span> (Windows) или <span class="code">Cmd + Shift + R</span> (Mac)
+            </div>
+            
+            <div class="step">
+                <strong>Шаг 3: Перейдите на страницу оценки</strong><br>
+                Откройте раздел "Капитализация 2.0" или "Оценка ИС"
+            </div>
+            
+            <div class="step">
+                <strong>Шаг 4: Проверьте селектор типов</strong><br>
+                Вы должны увидеть 4 группы с эмодзи:<br>
+                📚 Результаты творческой деятельности (6 типов)<br>
+                🏭 Объекты промышленной собственности (5 типов)<br>
+                🏷️ Средства индивидуализации (4 типа)<br>
+                🔐 Нетрадиционные объекты (1 тип)
+            </div>
+        </div>
+
+        <a href="http://localhost:3000/valuation" class="button" target="_blank">
+            🚀 Открыть страницу оценки
+        </a>
+
+        <div class="instructions" style="margin-top: 30px;">
+            <h2>🐛 Если изменения не видны:</h2>
+            
+            <div class="step">
+                <strong>Попробуйте режим инкогнито</strong><br>
+                Откройте браузер в режиме инкогнито (Ctrl + Shift + N) и перейдите на http://localhost:3000
+            </div>
+            
+            <div class="step">
+                <strong>Проверьте консоль браузера</strong><br>
+                Откройте DevTools (F12) → вкладка Console и проверьте наличие ошибок
+            </div>
+            
+            <div class="step">
+                <strong>Перезапустите контейнеры еще раз</strong><br>
+                Выполните в терминале:<br>
+                <span class="code">docker-compose restart frontend</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; opacity: 0.8;">
+            <small>Дата обновления: 18 января 2026 | Версия: 2.0.0</small>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,47 +1,58 @@
 import os
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import PlainTextResponse
-from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
+from fastapi.staticfiles import StaticFiles
 
-from app.database import Base, engine
-from app.routers import auth, ip as ip_router, docgen, deadlines, ip_objects, monitoring
-from app.limiter import limiter  # если не используешь — можешь закомментировать или удалить
+from app.routers import auth, ip_objects, documents, knowledge, deadlines, counterparties
+from app.routers import videos
+from app.routers import valuation
+from app.core.settings import settings
+from app.database import engine, Base
+import app.models  # Импортируем модели, чтобы Base их увидел
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="MDM IP API")
 
     # --- CORS ---
-    origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
-    if origins:
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=origins,
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
+    origins = [o.strip() for o in settings.CORS_ORIGINS.split(",")]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-    # --- Rate Limiting ---
-    app.state.limiter = limiter
-    app.add_middleware(SlowAPIMiddleware)
+    # --- Static files (для документов) ---
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # app/
+    UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")         # app/uploads/
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    @app.exception_handler(RateLimitExceeded)
-    async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
-        return PlainTextResponse("Too Many Requests", status_code=429)
+    # документы доступны по /uploads/*
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-    # --- DB init (dev only, иначе лучше через Alembic) ---
-    Base.metadata.create_all(bind=engine)
+    # --- Static files (отчёты об оценке ИС) ---
+    # storage/valuation_reports лежит на уровне проекта (/app/storage/valuation_reports)
+    PROJECT_ROOT = os.path.dirname(BASE_DIR)  # /app
+    VALUATION_DIR = os.path.join(PROJECT_ROOT, "storage", "valuation_reports")
+    os.makedirs(VALUATION_DIR, exist_ok=True)
+
+    # отчёты доступны по /valuation_reports/*
+    app.mount("/valuation_reports", StaticFiles(directory=VALUATION_DIR), name="valuation_reports")
 
     # --- Routers ---
-    app.include_router(auth.router, prefix="/auth", tags=["auth"])
-    app.include_router(ip_router.router, prefix="/ip", tags=["ip"])
-    app.include_router(docgen.router, prefix="/docgen", tags=["docgen"])
-    app.include_router(deadlines.router, prefix="/deadlines", tags=["deadlines"])
-    app.include_router(ip_objects.router, prefix="/ip_objects", tags=["ip_objects"])
-    app.include_router(monitoring.router, prefix="/monitoring", tags=["monitoring"])
+    app.include_router(documents.router)           # -> /documents/*
+    app.include_router(auth.router)                # -> /auth/*
+    app.include_router(ip_objects.router)          # -> /ip_objects/*
+    app.include_router(knowledge.router)           # -> /knowledge/*
+    app.include_router(deadlines.router)           # -> /deadlines/*
+    app.include_router(counterparties.router)      # -> /counterparties/*
+    app.include_router(videos.router)              # Видео
+    app.include_router(valuation.router)           # Оценка ИС
+
+    # --- DB INIT ---
+    Base.metadata.create_all(bind=engine)
 
     # --- System ---
     @app.get("/health")

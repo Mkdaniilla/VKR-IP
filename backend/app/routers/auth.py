@@ -1,82 +1,70 @@
-# app/routers/auth.py
-
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
-from json import JSONDecodeError
+from datetime import timedelta
 
-from app.database import SessionLocal
-from app.models.user import User
-from app.schemas.auth import RegisterIn, TokenOut
-from app.services.security import hash_password, verify_password, create_access_token
+from app import models
+from app.database import get_db
+from app.services import security as security_service
+from app.core import security
+from app.core.settings import settings
+from app.schemas import user as user_schema
+from app.schemas import auth_schemas
 
-router = APIRouter(tags=["auth"])
+# ✅ NEW: инициализация персональной базы знаний
+from app.services.knowledge_init import ensure_default_knowledge_for_user
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/register", response_model=TokenOut)
-def register(data: RegisterIn, db: Session = Depends(get_db)) -> TokenOut:
-    email_norm = data.email.strip().lower()
-    if db.query(User).filter(User.email == email_norm).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    u = User(email=email_norm, hashed_password=hash_password(data.password))
-    db.add(u)
+
+@router.post("/register", response_model=user_schema.UserOut)
+def register(user_in: user_schema.UserCreate, db: Session = Depends(get_db)):
+    user = (
+        db.query(models.user.User)
+        .filter(models.user.User.email == user_in.email)
+        .first()
+    )
+    if user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Пользователь с таким email уже существует",
+        )
+
+    hashed_password = security_service.get_password_hash(user_in.password)
+    new_user = models.user.User(email=user_in.email, hashed_password=hashed_password)
+
+    db.add(new_user)
     db.commit()
-    db.refresh(u)
-    token = create_access_token(str(u.id))
-    return TokenOut(access_token=token)
+    db.refresh(new_user)
 
-@router.post("/login", response_model=TokenOut)
-async def login(request: Request, db: Session = Depends(get_db)) -> TokenOut:
-    """
-    Универсальный логин по одному пути:
-    - принимает JSON ИЛИ form-data/x-www-form-urlencoded;
-    - поддерживает поля 'email' ИЛИ 'username';
-    - пароль из 'password'/'pwd'/'pass'.
-    """
-    ctype = (request.headers.get("content-type") or "").lower()
-    login_value = None
-    password = None
+    # ✅ NEW: создаём персональную структуру БЗ (категории + шаблоны статей)
+    # Идемпотентно: если вдруг вызовется повторно — дубли не создаст.
+    ensure_default_knowledge_for_user(db, new_user.id)
 
-    # Аккуратно различаем контенты и корректно обрабатываем пустое/битое тело
-    if "application/json" in ctype or ctype == "":
-        try:
-            data = await request.json()
-        except JSONDecodeError:
-            # Пытаемся быть дружелюбными: пустое тело или не-JSON при отсутствии Content-Type
-            data = {}
-        except Exception:
-            raise HTTPException(status_code=400, detail="Invalid JSON body")
-        login_value = (str(data.get("email") or data.get("username") or "")).strip().lower()
-        password = (str(data.get("password") or data.get("pwd") or data.get("pass") or "")).strip()
-    elif "application/x-www-form-urlencoded" in ctype or "multipart/form-data" in ctype:
-        try:
-            form = await request.form()
-        except Exception:
-            raise HTTPException(status_code=400, detail="Invalid form body")
-        login_value = (str(form.get("email") or form.get("username") or "")).strip().lower()
-        password = (str(form.get("password") or form.get("pwd") or form.get("pass") or "")).strip()
-    else:
-        raise HTTPException(status_code=415, detail="Unsupported Content-Type")
+    return new_user
 
-    if not login_value or not password:
-        raise HTTPException(status_code=400, detail="Email/username and password are required")
 
-    # Формируем условия поиска: по email и (если есть колонка) по username
-    filters = [User.email == login_value]
-    if hasattr(User, "username"):
-        # username может храниться в произвольном регистре — при необходимости добавьте .ilike
-        filters.append(getattr(User, "username") == login_value)
+@router.post("/login", response_model=auth_schemas.Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = (
+        db.query(models.user.User)
+        .filter(models.user.User.email == form_data.username)
+        .first()
+    )
+    if not user or not security_service.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный email или пароль",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    u = db.query(User).filter(or_(*filters)).first()
-    if not u or not verify_password(password, u.hashed_password):
-        # 401 — только для неверных учётных данных
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        data={"sub": str(user.id)}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
-    token = create_access_token(str(u.id))
-    return TokenOut(access_token=token)
+
+@router.get("/me", response_model=user_schema.UserOut)
+def read_users_me(current_user: models.user.User = Depends(security.get_current_user)):
+    return current_user

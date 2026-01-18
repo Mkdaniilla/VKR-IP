@@ -1,9 +1,11 @@
 from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
+
 from app.database import SessionLocal
-from app.models import User
-from app.core.config import settings
+from app.models.user import User
+from app.core.settings import settings
 
 
 def get_db():
@@ -14,10 +16,8 @@ def get_db():
         db.close()
 
 
-# ⚠️ Убедись, что токен берётся из headers (если ты используешь OAuth2PasswordBearer — подключи)
-from fastapi.security import OAuth2PasswordBearer
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# URL должен совпадать с роутом логина → /auth/login
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_current_user(
@@ -31,15 +31,21 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+        )
+        sub = payload.get("sub")
+        if sub is None:
             raise credentials_exception
-    except JWTError:
+        # sub мы сохраняли как str(user.id), поэтому приводим к int
+        user_id = int(sub)
+    except (JWTError, ValueError):
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_id).first()
-    if user is None:
+    if not user:
         raise credentials_exception
 
     return user
