@@ -27,28 +27,34 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 p-6">
-      <div className="w-full max-w-md rounded-2xl shadow-lg bg-white p-8">
-        <h1 className="text-3xl font-bold text-green-700 mb-6 text-center">
-          Регистрация
-        </h1>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1 font-medium">Email</label>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#020617] relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] -ml-48 -mt-48 pointer-events-none"></div>
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] -mr-48 -mb-48 pointer-events-none"></div>
+
+      <div className="w-full max-w-md glass-card p-10 rounded-[2.5rem] border-white/5 relative z-10 shadow-2xl">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-cyan-400 uppercase tracking-tighter mb-2">Создать аккаунт</h1>
+          <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.3em]">Присоединяйтесь к экосистеме VKR IP</p>
+        </div>
+
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Email</label>
             <input
               type="email"
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500"
+              className="glass-input font-bold"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="name@company.com"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm mb-1 font-medium">Пароль</label>
+          <div className="space-y-2">
+            <label className="block text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-2">Пароль</label>
             <input
               type="password"
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500"
+              className="glass-input font-bold"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="минимум 6 символов"
@@ -57,27 +63,30 @@ export default function RegisterPage() {
             />
           </div>
 
-          {err && <p className="text-red-600 text-sm">{err}</p>}
+          {err && (
+            <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl">
+              <p className="text-rose-400 text-[10px] font-bold uppercase tracking-widest text-center">{err}</p>
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold transition"
+            className="glass-button-primary w-full py-4 text-[10px] font-black uppercase tracking-[0.2em]"
           >
-            {loading ? "Создаём аккаунт..." : "Зарегистрироваться"}
+            {loading ? "Создание..." : "Зарегистрироваться"}
           </button>
 
-          <p className="text-sm text-center mt-2">
-            Уже есть аккаунт?{" "}
-            <a className="text-green-700 underline" href="/login">
-              Войти
-            </a>
-          </p>
-
-          <div className="text-center mt-4">
+          <div className="pt-6 text-center space-y-4">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+              Уже есть аккаунт?{" "}
+              <a className="text-cyan-400 hover:text-white transition-colors" href="/login">
+                Войти в систему
+              </a>
+            </p>
             <a
               href="/"
-              className="text-sm text-gray-600 hover:text-green-700 underline"
+              className="block text-[10px] font-bold text-white/20 hover:text-white transition-colors uppercase tracking-[0.3em]"
             >
               ← На главную
             </a>

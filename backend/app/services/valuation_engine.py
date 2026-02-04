@@ -9,12 +9,27 @@ logger = logging.getLogger(__name__)
 
 # === Факторы оценки ===
 BASE_REVENUE_MULTIPLES = {
-    "trademark": (1.0, 2.5),
-    "software": (2.0, 5.0),
-    "copyright": (0.8, 2.0),
-    "design": (0.8, 1.8),
-    "patent": (1.5, 4.0),
+    "trademark": (1.0, 3.5),
+    "software": (3.0, 7.0),
+    "literary_work": (1.5, 4.0),
+    "invention": (2.5, 6.0),
+    "utility_model": (1.5, 3.5),
+    "industrial_design": (1.2, 3.0),
+    "database": (2.0, 5.0),
+    "trade_name": (1.0, 2.5),
+    "know_how": (2.0, 4.5),
 }
+
+def calculate_subtype_metrics_factor(metrics: dict) -> float:
+    if not metrics:
+        return 1.0
+    vals = [float(v) for v in metrics.values()]
+    if not vals:
+        return 1.0
+    avg = sum(vals) / len(vals)
+    # 5 is neutral. Each point +/- adds/removes 5% value
+    # Range 1-10 -> 0.8 to 1.25 multiplier
+    return 1.0 + (avg - 5) * 0.05
 
 MARKET_REACH_FACTOR = {"local": 0.8, "region": 0.95, "national": 1.0, "international": 1.2}
 JURISDICTION_FACTOR = lambda n: 1.0 + min(0.5, 0.05 * max(0, n - 1))
@@ -202,9 +217,10 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
     factored *= BRAND_STRENGTH_FACTOR(int(inputs.get("brand_strength", 5)))
     factored *= LIFE_FACTOR(int(inputs.get("remaining_years", 5)))
     
-    # НОВЫЕ ФАКТОРЫ 2.0
+    # НОВЫЕ ФАКТОРЫ 2.0 + SUBTYPE METRICS
     factored *= calculate_legal_robustness_factor(inputs.get("legal_robustness", []))
     factored *= calculate_scope_factor(int(inputs.get("scope_protection", 5)))
+    factored *= calculate_subtype_metrics_factor(inputs.get("subtype_metrics", {}))
     factored *= VALUATION_PURPOSE_MULTIPLIER.get(inputs.get("valuation_purpose", "market"), 1.0)
 
     # 6. Дисконт риска

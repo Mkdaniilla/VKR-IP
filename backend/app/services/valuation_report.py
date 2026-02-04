@@ -104,63 +104,109 @@ SUBTYPE_MAP = {
     "game": "Игры",
     
     # Database
-    "structured": "Структурированные базы данных",
-    "analytics": "Аналитические БД",
+    "users": "База клиентских данных",
+    "financial": "Финансовая база данных",
+    "science": "Научно-исследовательская база",
+    "marketing": "Маркетинговая аналитическая база",
     
-    # Performance
-    "music_perform": "Музыкальные исполнения",
-    "theater": "Театральные постановки",
-    
-    # Phonogram
-    "audio": "Аудиозаписи",
-    
-    # Broadcast
-    "tv": "Телевещание",
-    "radio": "Радиовещание",
-    
-    # Invention
-    "invention": "Изобретение (патент)",
-    "pharma": "Фармацевтика и химия",
-    "electronics": "Электроника",
-    "utility": "Полезная модель",
+    # Utility model
+    "instrum": "Инструменты и приспособления",
+    "device": "Устройства и механизмы",
+    "component": "Детали и компоненты",
     
     # Industrial design
-    "product": "Дизайн продукта",
-    "device": "Конструкция устройства",
-    
-    # Plant variety
-    "plant": "Сорта растений",
-    "animal": "Породы животных",
-    
-    # Topology
-    "chip": "Топология микросхем",
-    
-    # Trademark
-    "service": "Бренд услуг",
-    "retail": "Торговая сеть",
-    "personal": "Персональный бренд",
+    "exterior": "Промышленный дизайн (Внешний вид)",
+    "interior": "Интерьерное решение",
+    "package": "Упаковка и этикетка",
     
     # Trade name
-    "company": "Наименование организации",
     "holding": "Наименование холдинга",
-    "foreign": "Иностранное наименование",
-    
-    # Commercial designation
-    "shop": "Обозначение магазина",
-    "restaurant": "Обозначение заведения",
-    "service_point": "Обозначение точки услуг",
-    
-    # Geographical indication
-    "geo": "Географическое указание",
-    "geo_product": "Географическое указание",
-    "appellation": "Наименование места происхождения товара (НМПТ)",
+    "retail_chain": "Торговая сеть",
+    "service_corp": "Сервисная корпорация",
     
     # Know-how
-    "tech": "Технические секреты",
-    "business": "Бизнес-секреты",
-    "data": "Конфиденциальные данные",
-    
+    "tech_process": "Технологический процесс",
+    "client_base": "Клиентская база",
+    "marketing_strategy": "Стратегия развития",
+
     "other": "Другое"
+}
+
+METRIC_LABELS = {
+    # Общие
+    "uniqueness": "Уникальность",
+    "scalability": "Масштабируемость",
+    "protection": "Защищенность",
+    "monetization": "Монетизация",
+    "reputation": "Репутация",
+    "potential": "Потенциал",
+    
+    # Книги / Курсы
+    "circulation": "Тираж / Продажи",
+    "literary_value": "Лит. ценность",
+    "adaptation_potential": "Потенциал адаптации",
+    "students": "Количество студентов",
+    "rating": "Рейтинг",
+    "content_freshness": "Актуальность контента",
+    
+    # ПО
+    "mrr": "MRR / ARR (Доход)",
+    "churn": "Churn Rate (Отток)",
+    "tech_debt": "Технический долг",
+    "downloads": "Количество загрузок",
+    "dau_mau": "Активность (DAU/MAU)",
+    "store_rating": "Рейтинг в сторах",
+    "clients": "Количество клиентов",
+    "avg_deal": "Средний чек",
+    "integrations": "Интеграции",
+    "lock_in": "Vendor Lock-in",
+    "accuracy": "Точность алгоритмов",
+    
+    # Игры
+    "players": "Активные игроки",
+    "retention": "Удержание (Retention)",
+    "arpu": "Доход на юзера (ARPU)",
+    "ip_potential": "IP Потенциал",
+    
+    # Изобретения / Модели
+    "development_stage": "Стадия разработки",
+    "market_size": "Объем рынка",
+    "efficacy": "Эффективность",
+    "patent_strength": "Сила патента",
+    "innovation": "Инновационность",
+    "manufacturability": "Готовность к пр-ву",
+    "competitive_edge": "Конкурентное превосходство",
+    "novelty_level": "Уровень новизны",
+    "practical_use": "Практическая польза",
+    "bypass_difficulty": "Сложность обхода",
+    
+    # Базы данных
+    "data_uniqueness": "Уникальность данных",
+    "data_volume": "Объем данных",
+    "data_utility": "Полезность данных",
+    "data_freshness": "Актуальность данных",
+    
+    # Дизайн
+    "aesthetic_appeal": "Эстетическая ценность",
+    "distinctiveness": "Узнаваемость",
+    "ergonomics": "Эргономика",
+    
+    # Бренды / Имена
+    "market_stability": "Устойчивость на рынке",
+    "network_value": "Стоимость связей",
+    "brand_awareness": "Узнаваемость бренда",
+    "customer_loyalty": "Лояльность (NPS)",
+    "premium": "Премиальность",
+    "service_quality": "Качество сервиса",
+    "differentiation": "Дифференциация",
+    "audience": "Аудитория",
+    "influence": "Влияние",
+    "commercial_potential": "Коммерческий потенциал",
+    
+    # Ноу-хау
+    "economic_value": "Экономическая ценность",
+    "secrecy_level": "Степень секретности",
+    "useful_life": "Срок актуальности",
 }
 
 INDUSTRY_MAP = {
@@ -302,7 +348,42 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         ('PADDING', (0,0), (-1,-1), 6),
     ]))
     content.append(t1)
-    content.append(Spacer(1, 15))
+    content.append(Spacer(1, 10))
+
+    # --- 1a. Intellectual Metrics ---
+    subtype_metrics = payload.get("subtype_metrics", {})
+    if subtype_metrics:
+        # Create a small grid for metrics
+        metrics_data = []
+        metrics_items = list(subtype_metrics.items())
+        
+        # Split into 2 columns
+        style_metrics = ParagraphStyle('MetricStyle', parent=styles['BodyCyr'], fontSize=9)
+        for i in range(0, len(metrics_items), 2):
+            row = []
+            for j in range(2):
+                if i + j < len(metrics_items):
+                    m_key, m_val = metrics_items[i + j]
+                    m_label = METRIC_LABELS.get(m_key, m_key)
+                    row.append(Paragraph(f"<b>{m_label}:</b> {m_val}/10", style_metrics))
+                else:
+                    row.append("")
+            metrics_data.append(row)
+        
+        if metrics_data:
+            content.append(Paragraph("Специфические метрики актива:", ParagraphStyle('SmallSub', parent=styles['BodyCyr'], fontSize=9, textColor=colors.HexColor("#64748b"), spaceAfter=5)))
+            tm = Table(metrics_data, colWidths=[85*mm, 85*mm])
+            tm.setStyle(TableStyle([
+                ('FONTNAME', (0,0), (-1,-1), FONT),
+                ('FONTSIZE', (0,0), (-1,-1), 9),
+                ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor("#334155")),
+                ('PADDING', (0,0), (-1,-1), 4),
+                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f1f5f9")), # Slate-100
+            ]))
+            content.append(tm)
+            content.append(Spacer(1, 15))
+    else:
+        content.append(Spacer(1, 5))
 
     # --- 2. Financial Results ---
     content.append(Paragraph("2. Финансовые результаты", styles["SectionHeader"]))
