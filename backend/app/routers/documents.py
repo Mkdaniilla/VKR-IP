@@ -291,9 +291,14 @@ async def analyze_document(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    from app.services.legal_ai import analyze_document_text
-    from docx import Document as DocxReader
-
+    """
+    Юридический аудит документа: анализирует текст на риски.
+    Использует локальный LegalAuditAgent.
+    """
+    from app.services.audit_agent import LegalAuditAgent
+    import logging
+    logger = logging.getLogger(__name__)
+    
     doc = (
         db.query(Document)
         .join(IPObject)
@@ -303,25 +308,133 @@ async def analyze_document(
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # Путь к файлу
-    if doc.filepath.startswith("valuation_"):
-        file_path = BASE_DIR.parent / "storage" / "valuation_reports" / (doc.filepath.split("/")[-1])
-    else:
-        file_path = BASE_DIR / "uploads" / "documents" / (doc.filepath.split("/")[-1])
+    # --- ОПРЕДЕЛЯЕМ ПРАВИЛЬНЫЙ ПУТЬ К ФАЙЛУ ---
+    # Перебираем все возможные варианты расположения файла
+    potential_paths = [
+        # Внутри папки uploads
+        BASE_DIR / "uploads" / doc.filepath,
+        BASE_DIR / "uploads" / (doc.filepath if "/" in doc.filepath else f"documents/{doc.filepath}"),
+        
+        # Внутри папки storage (для отчетов об оценке)
+        BASE_DIR / "storage" / "valuation_reports" / doc.filepath,
+        BASE_DIR / "storage" / "valuation_reports" / os.path.basename(doc.filepath),
+        
+        # Абсолютные пути внутри контейнера (на всякий случай)
+        Path("/app/storage/valuation_reports") / os.path.basename(doc.filepath),
+        Path("/app/uploads") / doc.filepath,
+        
+        # Путь относительно корня проекта
+        BASE_DIR.parent / "storage" / "valuation_reports" / os.path.basename(doc.filepath),
+    ]
 
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail=f"File not found on disk")
+    file_path = None
+    for p in potential_paths:
+        if p.exists() and p.is_file():
+            file_path = p
+            break
 
-    # Читаем текст из DOCX
-    try:
-        if str(file_path).lower().endswith(".docx"):
-            docx = DocxReader(str(file_path))
-            text = "\n".join([p.text for p in docx.paragraphs])
-        else:
-            text = "Анализ доступен только для форматов DOCX"
-            return {"risks": ["Формат не поддерживается для глубокого анализа"], "improvements": [], "summary": text}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading document: {e}")
+    if not file_path:
+        logger.error(f"Analysis failed: File not found. ID: {doc_id}, Filepath in DB: {doc.filepath}")
+        # Для отладки выведем первый проверенный путь в ошибку
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Файл не найден на сервере. Проверьте папку storage. (Поиск по: {os.path.basename(doc.filepath)})"
+        )
 
-    analysis = await analyze_document_text(text)
+    # --- ЛОГИКА ДЛЯ PDF (Отчеты об оценке) ---
+    if str(file_path).lower().endswith(".pdf"):
+        # Для PDF пока просто возвращаем "Ознакомление с отчетом"
+        return {
+            "summary": f"Это сгенерированный отчет об оценке '{doc.filename}'. Юридический аудит текста для PDF в данной версии не поддерживается, так как файл является результатом автоматического расчета.",
+            "risks": [{
+                "title": "Информационный документ",
+                "severity": "low",
+                "description": "Данный файл не является договором, поэтому глубокий аудит юридических рисков к нему не применим."
+            }],
+            "recommendations": [{"icon": "📄", "text": "Используйте этот документ для подтверждения стоимости актива в банках или при сделках."}]
+        }
+
+    # --- ЛОГИКА ДЛЯ DOCX (Договоры) ---
+    if not str(file_path).lower().endswith(".docx"):
+        return {
+            "summary": "Анализ доступен только для форматов DOCX.",
+            "risks": [{"title": "Формат не поддерживается", "severity": "low", "description": "Для глубокого юридического анализа загрузите документ в формате .docx"}],
+            "recommendations": []
+        }
+
+    # Вызов локального аудитора
+    agent = LegalAuditAgent()
+    analysis = agent.analyze(str(file_path))
+    
     return analysis
+
+
+@router.get("/{doc_id}/view-highlighted")
+async def view_document_with_highlights(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Возвращает HTML-версию документа с подсвеченными рисками
+    """
+    from app.services.document_highlighter import DocumentHighlighter
+    from app.models.ip_objects import IPObject
+    
+    # Получаем документ с IP-объектом
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Документ не найден")
+    
+    # Получаем IP-объект для проверки прав
+    ip_obj = db.query(IPObject).filter(IPObject.id == doc.ip_id).first()
+    if not ip_obj:
+        raise HTTPException(status_code=404, detail="IP-объект не найден")
+    
+    # Проверяем права доступа
+    if ip_obj.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа к этому документу")
+    
+    # Ищем файл
+    file_path = None
+    possible_paths = [
+        Path(f"app/uploads/documents/{doc.filename}"),
+        Path(f"uploads/documents/{doc.filename}"),
+        Path(doc.filename) if doc.filename else None
+    ]
+    
+    for path in possible_paths:
+        if path and path.exists():
+            file_path = path
+            break
+    
+    if not file_path:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Файл не найден. Проверенные пути: {[str(p) for p in possible_paths if p]}"
+        )
+    
+    # Проверяем формат
+    if not str(file_path).lower().endswith(".docx"):
+        raise HTTPException(
+            status_code=400,
+            detail="Подсветка рисков доступна только для DOCX файлов"
+        )
+    
+    # Конвертируем и подсвечиваем
+    highlighter = DocumentHighlighter()
+    try:
+        result = highlighter.process_document(str(file_path))
+        return {
+            "document_id": doc_id,
+            "filename": doc.filename,
+            "html": result["html"],
+            "risks": result["risks"],
+            "total_risks": result["total_risks"],
+            "severity_counts": result["severity_counts"]
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка обработки документа: {str(e)}"
+        )

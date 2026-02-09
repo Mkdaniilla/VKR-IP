@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { uploadDocument, deleteDocument, generateDocument } from "../lib/api";
+import { uploadDocument, deleteDocument, generateDocument, getApiUrl } from "../lib/api";
 import { getCounterparties } from "../api/counterparties";
 import { Counterparty } from "../types/counterparty";
 import { IPObject } from "../types/ip_objects";
@@ -59,7 +59,7 @@ export default function IPObjectCard({ ip }: Props) {
         <ul>
           {ip.documents?.map((doc: any) => (
             <li key={doc.id}>
-              <a href={`http://localhost:8000/uploads/${doc.filepath}`} target="_blank" rel="noreferrer">
+              <a href={`${getApiUrl().replace('/api', '')}/uploads/${doc.filepath}`} target="_blank" rel="noreferrer">
                 {doc.filename}
               </a>
               <button

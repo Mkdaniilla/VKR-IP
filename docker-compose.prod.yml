@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-REMOVED_DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-vkr_db}
+    volumes:
+      - vkr_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-app} -d ${DB_NAME:-vkr_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${DB_USER:-app}:${DB_PASSWORD:-REMOVED_DB_PASSWORD}@db:5432/${DB_NAME:-vkr_db}
+      SECRET_KEY: ${SECRET_KEY:-REMOVED_SECRET_KEY}
+      CORS_ORIGINS: http://mdmip.ru,https://mdmip.ru,http://www.mdmip.ru,https://www.mdmip.ru
+      OPENROUTER_API_KEY: REMOVED_OPENROUTER_KEY
+      OPENROUTER_MODEL: meta-llama/llama-3.3-70b-instruct:free
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - ./backend/app/uploads:/app/app/uploads
+      - ./backend/storage:/app/storage
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    restart: always
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:8000
+      NEXT_PUBLIC_API_URL: https://mdmip.ru/api
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+
+volumes:
+  vkr_pgdata:

@@ -136,8 +136,8 @@ export default function KnowledgePage() {
               <div className="space-y-2">
                 <button
                   className={`w-full text-left px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border ${selectedCategory === null
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-white/20 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
-                      : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10 hover:text-white"
+                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-white/20 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
+                    : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10 hover:text-white"
                     }`}
                   onClick={() => setSelectedCategory(null)}
                 >
@@ -148,8 +148,8 @@ export default function KnowledgePage() {
                   <div key={c.id} className="group relative">
                     <button
                       className={`w-full text-left px-5 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border pr-12 ${selectedCategory === c.id
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-white/20 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
-                          : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10 hover:text-white"
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-white/20 shadow-[0_10px_20px_rgba(16,185,129,0.2)]"
+                        : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10 hover:text-white"
                         }`}
                       onClick={() => setSelectedCategory(c.id)}
                     >
@@ -170,7 +170,7 @@ export default function KnowledgePage() {
                 <input
                   type="text"
                   placeholder="Новая..."
-                  className="glass-input !py-2 !px-4 !text-[11px] !h-10 border-white/5 focus:border-emerald-500/50"
+                  className="flex-1 glass-input !py-2 !px-4 !text-[11px] !h-10 border-white/5 focus:border-emerald-500/50"
                   value={newCatTitle}
                   onChange={(e) => setNewCatTitle(e.target.value)}
                 />

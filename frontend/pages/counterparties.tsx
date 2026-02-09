@@ -36,7 +36,7 @@ export default function CounterpartiesPage() {
       if (form.id) {
         await updateCounterparty(form.id, form);
       } else {
-        await createCounterparty(form);
+        await createCounterparty(form as Omit<Counterparty, "id" | "owner_id">);
       }
       setForm({});
       setEditingId(null);

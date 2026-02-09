@@ -12,7 +12,8 @@ import app.models  # Импортируем модели, чтобы Base их �
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="MDM IP API")
+    # root_path="/api" говорит FastAPI, что все ссылки должны начинаться с /api
+    app = FastAPI(title="MDM IP API", root_path="/api")
 
     # --- CORS ---
     origins = [o.strip() for o in settings.CORS_ORIGINS.split(",")]
@@ -23,6 +24,21 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # --- Proxy Headers Middleware (для правильных HTTPS редиректов) ---
+    from starlette.middleware.trustedhost import TrustedHostMiddleware
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.requests import Request
+    
+    class ProxyHeadersMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next):
+            # Если запрос пришел через HTTPS прокси, обновляем scheme
+            if request.headers.get("x-forwarded-proto") == "https":
+                request.scope["scheme"] = "https"
+            response = await call_next(request)
+            return response
+    
+    app.add_middleware(ProxyHeadersMiddleware)
 
     # --- Static files (для документов) ---
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # app/

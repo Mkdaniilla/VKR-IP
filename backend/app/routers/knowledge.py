@@ -43,66 +43,34 @@ async def ask_knowledge_base(
 ):
     """
     ИИ-агент: отвечает на вопрос пользователя, используя только статьи из его БЗ.
+    Использует локальный rule-based агент без внешних API.
     """
-    # 1. Получаем все статьи пользователя
-    articles = (
-        db.query(models.KnowledgeArticle)
-        .filter(models.KnowledgeArticle.user_id == current_user.id)
-        .all()
-    )
-
-    if not articles:
-        return {
-            "answer": "У вас пока нет статей в базе знаний. Я не могу ответить на вопрос.",
-            "sources": []
-        }
-
-    # 2. Формируем контекст из статей
-    context_parts = []
-    sources = []
-    for art in articles:
-        context_parts.append(f"СТАТЬЯ: {art.title}\nID: {art.id}\nСОДЕРЖАНИЕ:\n{art.content}\n---")
-        sources.append({"id": art.id, "title": art.title})
-
-    context_text = "\n".join(context_parts)
-
-    # 3. Формируем промпт
-    prompt = f"""
-Ты — профессиональный юридический ИИ-ассистент. Твоя задача — отвечать на вопросы пользователя, используя ТОЛЬКО предоставленную базу знаний.
-
-БАЗА ЗНАНИЙ ПОЛЬЗОВАТЕЛЯ:
-{context_text}
-
-ПРАВИЛА:
-1. Отвечай только на основе текстов выше.
-2. Если в базе знаний нет ответа на вопрос, вежливо скажи, что информации недостаточно.
-3. В конце ответа ОБЯЗАТЕЛЬНО укажи ID статей, которые ты использовал (например: "Источник: Статья #12").
-4. Твой ответ должен быть структурированным JSON в формате:
-{{
-  "answer": "текст твоего ответа...",
-  "sources_used": [id1, id2, ...]
-}}
-
-ВОПРОС ПОЛЬЗОВАТЕЛЯ: {payload.question}
-"""
-
-    # 4. Вызываем ИИ
-    ai = OpenRouterClient()
+    from app.services.local_ai_agent import LocalAIAgent
+    
+    # Создаем локального агента
+    agent = LocalAIAgent(db, user_id=current_user.id)
+    
+    # Получаем ответ
     try:
-        # ai.complete возвращает распарсенный JSON (см. ai_client.py)
-        ai_data = await ai.complete(prompt)
+        result = agent.ask(payload.question)
         
-        # Фильтруем источники, которые реально использованы
-        used_ids = ai_data.get("sources_used", [])
-        final_sources = [s for s in sources if s["id"] in used_ids]
-
+        # Формируем список источников
+        sources = []
+        for article_id in result["sources_used"]:
+            article = db.query(models.KnowledgeArticle).filter(
+                models.KnowledgeArticle.id == article_id,
+                models.KnowledgeArticle.user_id == current_user.id
+            ).first()
+            if article:
+                sources.append({"id": article.id, "title": article.title})
+        
         return {
-            "answer": ai_data.get("answer", "Не удалось сформировать ответ."),
-            "sources": final_sources
+            "answer": result["answer"],
+            "sources": sources
         }
     except Exception as e:
-        print(f"AI Error: {e}")
-        raise HTTPException(status_code=500, detail=f"Ошибка ИИ-агента: {str(e)}")
+        print(f"Local AI Agent Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка локального ИИ-агента: {str(e)}")
 
 
 # --- Categories ---

@@ -1,6 +1,6 @@
-import { authFetch } from "./auth";
+import { authFetch, getApiUrl } from "../lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = getApiUrl();
 
 // Генерация документа
 export async function generateDocument(template: string, ipId: number, counterpartyId: number): Promise<Blob> {

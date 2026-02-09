@@ -10,11 +10,13 @@ import {
   getToken,
   getIPObjects,
   IPObject,
+  IPType,
   ValuationPayload,
   getProtectedFileUrl,
+  getApiUrl,
 } from "../../lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = getApiUrl();
 
 // ================= Типы ==================
 type ValuationResponse = {
@@ -185,7 +187,7 @@ export default function ValuationPage() {
         ...p,
         annual_revenue: revenue ? Number(revenue) : p.annual_revenue,
         brand_strength: brand ? Number(brand) : p.brand_strength,
-        ip_type: type ? String(type) : p.ip_type,
+        ip_type: type ? (String(type) as IPType) : p.ip_type,
         ip_object_id: objectId ? Number(objectId) : p.ip_object_id,
       }));
     }
@@ -379,7 +381,7 @@ export default function ValuationPage() {
                     onChange={v => {
                       const id = v ? Number(v) : null;
                       const obj = ipObjects.find(x => x.id === id);
-                      setForm(p => ({ ...p, ip_object_id: id, ip_type: obj ? obj.type : p.ip_type }));
+                      setForm(p => ({ ...p, ip_object_id: id, ip_type: obj ? (obj.type as IPType) : p.ip_type }));
                     }}
                     placeholder="-- Создать новый --"
                     options={ipObjects.map(obj => ({ value: obj.id, label: obj.title }))}

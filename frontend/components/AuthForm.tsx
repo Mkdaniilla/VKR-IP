@@ -2,8 +2,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { loginReq, registerReq } from "@/lib/api";
-import AuthForm from "@/components/ui/AuthForm";
+import { login, register } from "@/lib/api";
 
 
 type Mode = "login" | "register";
@@ -21,10 +20,10 @@ export default function AuthForm({ mode }: { mode: Mode }) {
     setLoading(true);
     try {
       if (mode === "login") {
-        await loginReq(email, password); // username=email
+        await login(email, password); // username=email
         router.push("/dashboard");
       } else {
-        await registerReq(email, password);
+        await register(email, password);
         // если токен вернули — сразу в кабинет; иначе на логин
         router.push("/dashboard");
       }
@@ -74,8 +73,8 @@ export default function AuthForm({ mode }: { mode: Mode }) {
         {loading
           ? "Подождите…"
           : mode === "login"
-          ? "Войти"
-          : "Зарегистрироваться"}
+            ? "Войти"
+            : "Зарегистрироваться"}
       </button>
     </form>
   );

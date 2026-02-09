@@ -1,7 +1,7 @@
 import { Counterparty } from "@/types/counterparty";
-import { authFetch } from "../lib/api";
+import { authFetch, getApiUrl } from "../lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = getApiUrl();
 
 // --- Получение списка контрагентов ---
 export async function getCounterparties(): Promise<Counterparty[]> {

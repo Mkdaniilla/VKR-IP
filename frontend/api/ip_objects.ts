@@ -1,7 +1,7 @@
 import { IPObject } from "@/types/ip_objects";
-import { authFetch } from "./auth";
+import { authFetch, getApiUrl } from "../lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = getApiUrl();
 
 // Получить список объектов
 export async function getIPObjects(status?: string): Promise<IPObject[]> {

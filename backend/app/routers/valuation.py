@@ -14,7 +14,7 @@ from app.services.ai_client import OpenRouterClient
 from app.services.valuation_engine import run_valuation
 from app.services.valuation_report import generate_pdf
 
-router = APIRouter(prefix="/api/valuation", tags=["valuation"])
+router = APIRouter(prefix="/valuation", tags=["valuation"])
 
 REPORT_DIR = "storage/valuation_reports"
 

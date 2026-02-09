@@ -8,6 +8,7 @@ import {
   createIPObject,
   deleteIPObject,
   updateIPObjectStatus,
+  getApiUrl,
   IPType,
   IP_TYPES_RU,
   getDocuments,
@@ -55,7 +56,7 @@ const STATUS_RU: Record<string, string> = {
   expired: "Истёк срок",
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = getApiUrl();
 
 export default function IPObjectsPage() {
   const router = useRouter();
@@ -84,6 +85,8 @@ export default function IPObjectsPage() {
   const [analyzingDocId, setAnalyzingDocId] = useState<number | null>(null);
   const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [lastAnalyzedDocId, setLastAnalyzedDocId] = useState<number | null>(null);
+
 
   useEffect(() => {
     const token = getToken();
@@ -233,6 +236,7 @@ export default function IPObjectsPage() {
       const { analyzeDocument } = await import("../lib/api");
       const res = await analyzeDocument(docId);
       setAnalysisResult(res);
+      setLastAnalyzedDocId(docId); // Save for viewer link
       setShowAnalysisModal(true);
     } catch (e: any) {
       alert(e.message || "Ошибка при анализе");
@@ -716,7 +720,7 @@ export default function IPObjectsPage() {
       </div>
 
       {/* Analysis Modal */}
-      {showAnalysisModal && (
+      {showAnalysisModal && analysisResult && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
           <div className="glass-card rounded-[2.5rem] w-full max-w-2xl overflow-hidden border-white/10 animate-in fade-in zoom-in duration-500">
             <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/5">
@@ -748,12 +752,22 @@ export default function IPObjectsPage() {
                     Критические риски
                   </h3>
                   <div className="space-y-3">
-                    {analysisResult?.risks?.map((r: string, i: number) => (
-                      <div key={i} className="p-4 bg-rose-500/10 rounded-2xl text-rose-300 text-xs font-bold border border-rose-500/20 flex gap-4 transition-all hover:bg-rose-500/20">
-                        <span className="flex-shrink-0 w-6 h-6 bg-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center text-[10px] font-black">{i + 1}</span>
-                        {r}
-                      </div>
-                    ))}
+                    {analysisResult?.risks?.map((risk: any, i: number) => {
+                      const title = typeof risk === 'object' ? (risk.title || risk.text || JSON.stringify(risk)) : risk;
+                      const desc = typeof risk === 'object' ? risk.description : null;
+
+                      return (
+                        <div key={i} className="p-4 bg-rose-500/10 rounded-2xl text-rose-300 text-xs font-bold border border-rose-500/20">
+                          <div className="flex items-start gap-3">
+                            <span className="flex-shrink-0 w-6 h-6 bg-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center text-[10px] font-black">{i + 1}</span>
+                            <div className="flex-1">
+                              <div className="font-black text-white mb-1">{String(title)}</div>
+                              {desc && <div className="text-[10px] opacity-70 mt-1">{String(desc)}</div>}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
 
@@ -764,18 +778,36 @@ export default function IPObjectsPage() {
                     Рекомендации
                   </h3>
                   <div className="space-y-3">
-                    {analysisResult?.improvements?.map((imp: string, i: number) => (
-                      <div key={i} className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-300 text-xs font-bold border border-emerald-500/20 flex gap-4 transition-all hover:bg-emerald-500/20">
-                        <span className="flex-shrink-0 w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center text-[10px] font-black">{i + 1}</span>
-                        {imp}
-                      </div>
-                    ))}
+                    {(analysisResult?.recommendations || analysisResult?.improvements)?.map((rec: any, i: number) => {
+                      const icon = (typeof rec === 'object' ? rec.icon : null) || '💡';
+                      const text = typeof rec === 'object' ? (rec.text || rec.title || JSON.stringify(rec)) : rec;
+
+                      return (
+                        <div key={i} className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-300 text-xs font-bold border border-emerald-500/20 flex gap-4 transition-all hover:bg-emerald-500/20">
+                          <span className="flex-shrink-0 text-2xl">{String(icon)}</span>
+                          <div className="flex-1">{String(text)}</div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-10 bg-white/5 border-t border-white/5 flex justify-end">
+            <div className="p-10 bg-white/5 border-t border-white/5 flex justify-between items-center">
+              <button
+                onClick={() => {
+                  setShowAnalysisModal(false);
+                  if (lastAnalyzedDocId) {
+                    router.push(`/document-viewer/${lastAnalyzedDocId}`);
+                  }
+                }}
+                className="glass-button-secondary flex items-center gap-2"
+                disabled={!lastAnalyzedDocId}
+              >
+                <span>📄</span>
+                Открыть с подсветкой
+              </button>
               <button
                 onClick={() => setShowAnalysisModal(false)}
                 className="glass-button-primary"

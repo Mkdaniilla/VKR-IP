@@ -5,6 +5,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import CustomSelect from "@/components/CustomSelect";
 import { getIPObjects, getCounterparties, generateDocument, getUpcomingDeadlines, Deadline } from "@/lib/api";
 import FormattedPrice from "@/components/FormattedPrice";
+import PortfolioChart from "@/components/PortfolioChart";
+import ValueBarChart from "@/components/ValueBarChart";
 import { IPType, IP_TYPES_RU } from "@/lib/api";
 
 type IPObject = {
@@ -360,7 +362,7 @@ export default function DashboardPage() {
                 </Link>
               </div>
 
-              {/* Enhanced Circular Chart */}
+              {/* Enhanced Interactive Chart */}
               <div className="relative flex justify-center mb-10">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
@@ -369,48 +371,45 @@ export default function DashboardPage() {
                     return acc;
                   }, {});
 
-                  const total = Object.values(breakdown).reduce((a: number, b: number) => a + b, 0) || 1;
-                  const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0));
                   const colors: Record<string, string> = {
-                    software: '#10b981', trademark: '#3b82f6', patent: '#f59e0b', copyright: '#8b5cf6', design: '#ec4899'
+                    software: '#10b981',
+                    trademark: '#3b82f6',
+                    patent: '#f59e0b',
+                    copyright: '#8b5cf6',
+                    design: '#ec4899',
+                    invention: '#f59e0b',
+                    literary_work: '#8b5cf6'
                   };
 
-                  let cumulativePercent = 0;
+                  const chartData = Object.keys(breakdown).map(type => ({
+                    name: IP_TYPES_RU[type as IPType] || type,
+                    value: breakdown[type],
+                    color: colors[type] || '#cbd5e1'
+                  })).filter(d => d.value > 0);
+
+                  if (chartData.length === 0) {
+                    return (
+                      <div className="h-48 flex items-center justify-center text-white/20 text-[10px] font-black uppercase tracking-widest">
+                        Нет данных для анализа
+                      </div>
+                    );
+                  }
+
                   return (
-                    <div className="relative w-48 h-48">
-                      <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-                        {types.map((type, i) => {
-                          const val = ((breakdown[type] || 0) / total) * 100;
-                          const dashArray = `${val} ${100 - val}`;
-                          const offset = 100 - cumulativePercent;
-                          cumulativePercent += val;
-                          return (
-                            <circle
-                              key={type} cx="18" cy="18" r="15.9"
-                              fill="transparent"
-                              stroke={colors[type] || '#cbd5e1'}
-                              strokeWidth="3.5"
-                              strokeDasharray={dashArray}
-                              strokeDashoffset={offset}
-                              className="transition-all duration-1000"
-                              strokeLinecap="round"
-                            />
-                          );
-                        })}
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                    <div className="relative w-full">
+                      <PortfolioChart data={chartData} />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-[36px]">
                         <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em]">ИТОГО</div>
                         <div className="text-2xl font-black text-white leading-none mt-1">
                           <FormattedPrice value={stats.totalValue} currency="" />
                         </div>
-                        <div className="text-[10px] text-cyan-400 font-black mt-1">RUB</div>
                       </div>
                     </div>
                   );
                 })()}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 mb-10">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
                     const t = String(a.type);
@@ -419,7 +418,13 @@ export default function DashboardPage() {
                   }, {});
                   const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 3);
                   const typeColors: Record<string, string> = {
-                    software: 'bg-emerald-500', trademark: 'bg-blue-500', patent: 'bg-amber-500', copyright: 'bg-purple-500', design: 'bg-pink-500'
+                    software: 'bg-emerald-500',
+                    trademark: 'bg-blue-500',
+                    patent: 'bg-amber-500',
+                    copyright: 'bg-purple-500',
+                    design: 'bg-pink-500',
+                    invention: 'bg-amber-500',
+                    literary_work: 'bg-purple-500'
                   };
 
                   return types.map(type => (
@@ -433,6 +438,26 @@ export default function DashboardPage() {
                       <div className="text-xs font-black text-white"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
                     </div>
                   ));
+                })()}
+              </div>
+
+              {/* Value Distribution Bar Chart */}
+              <div className="mt-10 pt-10 border-t border-white/5">
+                <h4 className="text-[10px] font-black text-white/40 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="w-2 h-px bg-cyan-400"></span>
+                  Топ-5 активов по стоимости
+                </h4>
+                {(() => {
+                  const topAssets = [...allAssets]
+                    .sort((a, b) => (b.estimated_value || 0) - (a.estimated_value || 0))
+                    .slice(0, 5)
+                    .map(a => ({
+                      name: a.title,
+                      value: a.estimated_value || 0
+                    }));
+
+                  if (topAssets.length === 0) return null;
+                  return <ValueBarChart data={topAssets} />;
                 })()}
               </div>
             </div>
