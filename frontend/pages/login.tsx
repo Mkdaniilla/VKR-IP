@@ -33,7 +33,7 @@ export default function LoginPage() {
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-[120px] -ml-48 -mb-48 pointer-events-none"></div>
 
-      <div className="w-full max-w-md glass-card p-10 rounded-[2.5rem] border-white/5 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-700">
+      <div className="w-full max-w-md glass-card p-10 rounded-[2.5rem] border-white/5 relative z-10 shadow-2xl">
         <div className="text-center mb-10">
           <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-2xl mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-500">
             <Shield className="w-8 h-8 text-white" />

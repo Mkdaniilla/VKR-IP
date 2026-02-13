@@ -57,7 +57,7 @@
 
   @keyframes fadeIn {
     from {
-      opacity: 0;
+      opacity: 0.5;
     }
 
     to {
@@ -67,8 +67,8 @@
 
   @keyframes zoomIn {
     from {
-      opacity: 0;
-      transform: scale(0.95);
+      opacity: 1;
+      transform: scale(0.98);
     }
 
     to {
@@ -80,7 +80,7 @@
   @keyframes slideInTopSmall {
     from {
       transform: translateY(-0.5rem);
-      opacity: 0;
+      opacity: 0.5;
     }
 
     to {
@@ -105,24 +105,7 @@ body {
   @apply antialiased selection:bg-cyan-500/30 overflow-x-hidden;
 }
 
-/* Force dark styling for native elements */
-select,
-option,
-optgroup {
-  background-color: #0f172a !important;
-  color: white !important;
-}
-
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
-  padding-right: 2.5rem !important;
-}
-
-/* Custom Scrollbar 2.0 */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -141,79 +124,6 @@ select {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(34, 211, 238, 0.2);
-}
-
-/* Animations */
-@keyframes float {
-  0% {
-    transform: translateY(0px) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-10px) rotate(1deg);
-  }
-
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-}
-
-.animate-float {
-  animation: float 8s ease-in-out infinite;
-}
-
-@keyframes pulse-soft {
-
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.6;
-    transform: scale(1.05);
-  }
-}
-
-.pulse-soft {
-  animation: pulse-soft 4s ease-in-out infinite;
-}
-
-/* Typography Refinement */
-h1,
-h2,
-h3 {
-  letter-spacing: -0.02em;
-}
-
-input::placeholder {
-  @apply tracking-normal font-normal opacity-40;
-}
-
-.custom-select-dropdown {
-  background: rgba(2, 6, 23, 0.95) !important;
-  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
-  backdrop-filter: blur(40px) saturate(150%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 1.25rem !important;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-  padding: 0.5rem !important;
-}
-
-.custom-select-option {
-  @apply text-[14px] font-medium py-3 px-4 rounded-xl transition-all cursor-pointer;
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-.custom-select-option:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: white !important;
-}
-
-.custom-select-option.selected {
-  background: rgba(34, 211, 238, 0.1) !important;
-  color: #22d3ee !important;
 }
 
 .z-top {
