@@ -198,16 +198,11 @@ export default function ValuationPage() {
 
     async function fetchObjects() {
       try {
-        const r = await authFetch(`${API_URL}/ip_objects/`);
-        if (r.ok) {
-          const data = await r.json();
-          setIpObjects(data);
-          setIpObjectsError(null);
-        } else {
-          setIpObjectsError("Не удалось загрузить список объектов");
-        }
+        const data = await getIPObjects();
+        setIpObjects(data);
+        setIpObjectsError(null);
       } catch (e) {
-        setIpObjectsError("Ошибка сети при загрузке объектов");
+        setIpObjectsError("Ошибка при загрузке объектов");
       }
     }
     fetchObjects();
@@ -265,7 +260,7 @@ export default function ValuationPage() {
 
     try {
       const token = getToken();
-      const r = await fetch(`${API_URL}/api/valuation/estimate`, {
+      const r = await fetch("/api/valuation/estimate", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(form),
