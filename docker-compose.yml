@@ -38,7 +38,7 @@ services:
     build: ./frontend
     environment:
       BACKEND_INTERNAL_URL: http://backend:8000
-      NODE_ENV: development
+      NODE_ENV: production
     depends_on:
       backend:
         condition: service_healthy
@@ -47,7 +47,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: sh -lc "npm install --no-audit --legacy-peer-deps && npm run dev"
+    command: sh -lc "npm run build && npm run start"
 
 volumes:
   pgdata:
