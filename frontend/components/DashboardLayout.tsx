@@ -1,6 +1,15 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import {
+  Home,
+  Briefcase,
+  Users,
+  Calendar,
+  AreaChart,
+  BookOpen,
+  LogOut
+} from "lucide-react";
 import KBAgentFox from "./KBAgentFox";
 
 export default function DashboardLayout({
@@ -14,32 +23,32 @@ export default function DashboardLayout({
     {
       href: "/dashboard",
       label: "Главная",
-      icon: <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      icon: Home,
     },
     {
       href: "/ip-objects",
       label: "Мои активы",
-      icon: <path d="M20 7h-9.586A2 2 0 019 5.586l-.293-.293A2 2 0 007.293 4H3a2 2 0 00-2 2v12a2 2 0 002 2h17a2 2 0 002-2V9a2 2 0 00-2-2z" />
+      icon: Briefcase,
     },
     {
       href: "/counterparties",
       label: "Контрагенты",
-      icon: <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      icon: Users,
     },
     {
       href: "/deadlines",
       label: "Сроки",
-      icon: <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      icon: Calendar,
     },
     {
       href: "/valuation",
       label: "Оценка ИС",
-      icon: <path d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+      icon: AreaChart,
     },
     {
       href: "/knowledge",
       label: "База знаний",
-      icon: <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      icon: BookOpen,
     },
   ];
 
@@ -77,6 +86,7 @@ export default function DashboardLayout({
         <nav className="flex-1 py-10 px-4 space-y-3 overflow-y-auto custom-scrollbar">
           {tabs.map((tab) => {
             const isActive = router.pathname.startsWith(tab.href);
+            const Icon = tab.icon;
             return (
               <Link key={tab.href} href={tab.href}>
                 <div className={`
@@ -89,14 +99,12 @@ export default function DashboardLayout({
                   {isActive && (
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none"></div>
                   )}
-                  <svg className={`w-6 h-6 flex-shrink-0 transition-all duration-300 ${isActive ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] scale-110" : "text-white/20 group-hover:text-white/60 group-hover:scale-110"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    {tab.icon}
-                  </svg>
-                  <span className={`font-black uppercase tracking-widest text-[10px] hidden md:block whitespace-nowrap transition-all duration-300 ${isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100"}`}>
+                  <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isActive ? "text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)] scale-110" : "text-white/20 group-hover:text-white/60 group-hover:scale-110"}`} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className={`font-bold uppercase tracking-widest text-[10px] hidden md:block whitespace-nowrap transition-all duration-300 ${isActive ? "opacity-100" : "opacity-60 group-hover:opacity-100"}`}>
                     {tab.label}
                   </span>
                   {isActive && (
-                    <div className="ml-auto w-1 h-6 rounded-full bg-cyan-400 hidden md:block shadow-[0_0_15px_rgba(34,211,238,1)]"></div>
+                    <div className="ml-auto w-1 h-5 rounded-full bg-cyan-400 hidden md:block shadow-[0_0_15px_rgba(34,211,238,1)]"></div>
                   )}
                 </div>
               </Link>
@@ -110,8 +118,8 @@ export default function DashboardLayout({
             onClick={handleLogout}
             className="flex items-center gap-4 px-4 py-4 w-full rounded-2xl text-white/20 hover:bg-rose-500/10 hover:text-rose-400 transition-all duration-300 group"
           >
-            <svg className="w-6 h-6 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            <span className="font-black uppercase tracking-widest text-[10px] hidden md:block">Выйти</span>
+            <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" strokeWidth={2} />
+            <span className="font-bold uppercase tracking-widest text-[10px] hidden md:block">Выйти</span>
           </button>
         </div>
       </aside>

@@ -3,11 +3,37 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import DashboardLayout from "@/components/DashboardLayout";
 import CustomSelect from "@/components/CustomSelect";
-import { getIPObjects, getCounterparties, generateDocument, getUpcomingDeadlines, Deadline } from "@/lib/api";
+import {
+  getIPObjects,
+  getCounterparties,
+  generateDocument,
+  getUpcomingDeadlines,
+  Deadline
+} from "@/lib/api";
 import FormattedPrice from "@/components/FormattedPrice";
 import PortfolioChart from "@/components/PortfolioChart";
 import ValueBarChart from "@/components/ValueBarChart";
 import { IPType, IP_TYPES_RU } from "@/lib/api";
+import {
+  Gem,
+  Handshake,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  Code2,
+  ShieldCheck,
+  FileText,
+  Mail,
+  Phone,
+  Plus,
+  FileEdit,
+  Scale,
+  Lock,
+  Download,
+  Search
+} from "lucide-react";
 
 type IPObject = {
   id: number;
@@ -150,21 +176,21 @@ export default function DashboardPage() {
 
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2">
+                  <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
                     Статус портфеля
                   </h1>
-                  <p className="text-white/40 font-bold uppercase tracking-[0.3em] text-[10px]">Интеллектуальный мониторинг активов 2.0</p>
+                  <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px]">Интеллектуальный мониторинг активов 2.0</p>
                 </div>
 
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Общая стоимость</p>
-                    <div className="text-4xl font-black text-white">
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Общая стоимость</p>
+                    <div className="text-4xl font-mono font-bold text-white">
                       <FormattedPrice value={stats.totalValue} />
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 flex items-center justify-center border border-cyan-400/20 text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 flex items-center justify-center border border-white/10 text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+                    <TrendingUp className="w-6 h-6" />
                   </div>
                 </div>
               </div>
@@ -172,19 +198,19 @@ export default function DashboardPage() {
               {/* Stats Widgets Grid */}
               <div className="grid md:grid-cols-3 gap-6 mt-10">
                 {[
-                  { label: "Всего активов", value: stats.assetsCount, color: "from-cyan-500 to-blue-600", icon: "💎", data: [30, 45, 35, 60, 55, 70] },
-                  { label: "Контрагенты", value: stats.activeLicensees, color: "from-emerald-500 to-teal-600", icon: "🤝", data: [20, 30, 25, 40, 35, 50] },
-                  { label: "Средняя ценность", value: Math.round(stats.totalValue / (stats.assetsCount || 1)), isPrice: true, color: "from-violet-500 to-purple-600", icon: "⚡", data: [40, 50, 45, 65, 60, 80] }
+                  { label: "Всего активов", value: stats.assetsCount, color: "from-cyan-500 to-blue-600", icon: Gem, data: [30, 45, 35, 60, 55, 70] },
+                  { label: "Контрагенты", value: stats.activeLicensees, color: "from-emerald-500 to-teal-600", icon: Handshake, data: [20, 30, 25, 40, 35, 50] },
+                  { label: "Средняя ценность", value: Math.round(stats.totalValue / (stats.assetsCount || 1)), isPrice: true, color: "from-violet-500 to-purple-600", icon: Zap, data: [40, 50, 45, 65, 60, 80] }
                 ].map((stat, i) => (
                   <div key={i} className="bg-white/5 rounded-3xl p-6 border border-white/5 hover:bg-white/10 transition group/stat relative overflow-hidden">
                     <div className="flex justify-between items-start mb-4">
-                      <span className="text-2xl">{stat.icon}</span>
-                      <div className="text-emerald-400 text-[10px] font-black flex items-center gap-0.5 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
-                        <span className="text-[8px]">▲</span> 12%
+                      <stat.icon className={`w-6 h-6 text-white/40 group-hover/stat:text-white transition-colors`} />
+                      <div className="text-emerald-400 text-[10px] font-bold flex items-center gap-1 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
+                        <span>▲</span> 12%
                       </div>
                     </div>
-                    <div className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1">{stat.label}</div>
-                    <div className="text-2xl font-black text-white">
+                    <div className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">{stat.label}</div>
+                    <div className="text-2xl font-bold font-mono text-white">
                       {stat.isPrice ? <FormattedPrice value={stat.value} currency="₽" /> : stat.value}
                     </div>
 
@@ -233,20 +259,20 @@ export default function DashboardPage() {
                 {upcomingDeadlines.length > 0 ? (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 group cursor-pointer hover:bg-rose-500/20 transition">
                     <div className="w-10 h-10 rounded-xl bg-rose-500 flex items-center justify-center text-white shadow-[0_0_20px_rgba(244,63,94,0.4)] animate-pulse">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                      <AlertTriangle className="w-5 h-5" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-black text-rose-400 uppercase tracking-tighter">Критическая дата</div>
+                      <div className="text-xs font-bold text-rose-400 uppercase tracking-tight">Критическая дата</div>
                       <div className="text-[11px] text-white/80 font-bold">{new Date(upcomingDeadlines[0].due_date).toLocaleDateString()}</div>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 transition">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                      <CheckCircle2 className="w-5 h-5" strokeWidth={2.5} />
                     </div>
                     <div>
-                      <div className="text-xs font-black text-emerald-400 uppercase tracking-tighter">Все в порядке</div>
+                      <div className="text-xs font-bold text-emerald-400 uppercase tracking-tight">Все в порядке</div>
                       <div className="text-[11px] text-white/80 font-bold">Срочных дел нет</div>
                     </div>
                   </div>
@@ -274,37 +300,40 @@ export default function DashboardPage() {
             {/* Recent Assets List */}
             <div className="space-y-6">
               <div className="flex justify-between items-center px-4">
-                <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
+                <h3 className="text-xl font-bold text-white uppercase tracking-tight flex items-center gap-4">
                   <span className="w-2 h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
                   Оперативный реестр
                 </h3>
-                <Link href="/ip-objects" className="text-[10px] font-black text-cyan-400 bg-cyan-400/10 px-4 py-2 rounded-xl border border-cyan-400/20 hover:bg-cyan-400/20 transition uppercase tracking-widest">Перейти в реестр</Link>
+                <Link href="/ip-objects" className="text-[10px] font-bold text-cyan-400 bg-cyan-400/10 px-4 py-2 rounded-xl border border-white/5 hover:bg-cyan-400/20 transition uppercase tracking-widest">Перейти в реестр</Link>
               </div>
 
               <div className="grid md:grid-cols-1 gap-4">
-                {recentAssets.map((asset) => (
-                  <div key={asset.id} className="glass-card hover:bg-white/10 transition-all p-5 rounded-3xl flex items-center gap-6 group border-white/5 cursor-pointer">
-                    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-2xl bg-gradient-to-br ${asset.type === 'software' ? 'from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]' :
-                      asset.type === 'trademark' ? 'from-blue-500 to-indigo-600 shadow-[0_0_20px_rgba(59,130,246,0.2)]' :
-                        'from-purple-500 to-pink-600 shadow-[0_0_20px_rgba(168,85,247,0.2)]'
-                      } border border-white/10 text-white`}>
-                      {asset.type === 'software' ? '💻' : asset.type === 'trademark' ? '🏷️' : '📜'}
+                {recentAssets.map((asset) => {
+                  const Icon = asset.type === 'software' ? Code2 : asset.type === 'trademark' ? ShieldCheck : FileText;
+                  return (
+                    <div key={asset.id} className="glass-card hover:bg-white/10 transition-all p-5 rounded-3xl flex items-center gap-6 group border-white/5 cursor-pointer">
+                      <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center bg-gradient-to-br ${asset.type === 'software' ? 'from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.2)]' :
+                        asset.type === 'trademark' ? 'from-blue-500 to-indigo-600 shadow-[0_0_20px_rgba(59,130,246,0.2)]' :
+                          'from-purple-500 to-pink-600 shadow-[0_0_20px_rgba(168,85,247,0.2)]'
+                        } border border-white/10 text-white`}>
+                        <Icon className="w-7 h-7" strokeWidth={2.5} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{asset.title}</div>
+                        <div className="text-xs font-bold text-white/40 uppercase tracking-widest mt-0.5">{IP_TYPES_RU[asset.type]}</div>
+                      </div>
+                      <div className="hidden md:block text-right">
+                        <div className="text-sm font-bold font-mono text-white"><FormattedPrice value={asset.estimated_value || 0} /></div>
+                        <div className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-1">Оценочная стоимость</div>
+                      </div>
+                      <div className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${asset.status === 'registered' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                        }`}>
+                        {asset.status === 'registered' ? 'Активен' : asset.status}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-black text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{asset.title}</div>
-                      <div className="text-xs font-bold text-white/40 uppercase tracking-widest mt-0.5">{IP_TYPES_RU[asset.type]}</div>
-                    </div>
-                    <div className="hidden md:block text-right">
-                      <div className="text-sm font-black text-white"><FormattedPrice value={asset.estimated_value || 0} /></div>
-                      <div className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-1">Оценочная стоимость</div>
-                    </div>
-                    <div className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${asset.status === 'registered' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]' :
-                      'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                      }`}>
-                      {asset.status === 'registered' ? 'Активен' : asset.status}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -327,15 +356,15 @@ export default function DashboardPage() {
                         } shadow-xl border border-white/20 mb-4 transition-transform group-hover:scale-110 duration-500`}>
                         {p.name.charAt(0)}
                       </div>
-                      <div className="text-sm font-black text-white mb-1 uppercase tracking-tight group-hover:text-cyan-400 transition-colors w-full truncate">{p.name}</div>
+                      <div className="text-sm font-bold text-white mb-1 uppercase tracking-tight group-hover:text-cyan-400 transition-colors w-full truncate">{p.name}</div>
                       <div className="text-[10px] font-bold text-white/30 truncate w-full uppercase tracking-widest">{p.contact_person || "Контрагент"}</div>
 
                       <div className="mt-6 flex gap-2">
                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 transition cursor-pointer">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                          <Mail className="w-4 h-4" />
                         </div>
                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 transition cursor-pointer">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                          <Phone className="w-4 h-4" />
                         </div>
                       </div>
                     </div>
@@ -399,8 +428,8 @@ export default function DashboardPage() {
                     <div className="relative w-full">
                       <PortfolioChart data={chartData} />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-[36px]">
-                        <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em]">ИТОГО</div>
-                        <div className="text-2xl font-black text-white leading-none mt-1">
+                        <div className="text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">ИТОГО</div>
+                        <div className="text-2xl font-bold font-mono text-white leading-none mt-1">
                           <FormattedPrice value={stats.totalValue} currency="" />
                         </div>
                       </div>
@@ -435,7 +464,7 @@ export default function DashboardPage() {
                           {IP_TYPES_RU[type as IPType] || type}
                         </span>
                       </div>
-                      <div className="text-xs font-black text-white"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
+                      <div className="text-xs font-bold font-mono text-white"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
                     </div>
                   ));
                 })()}
@@ -475,16 +504,16 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { id: 'dogovor', label: 'Договор', icon: '📝' },
-                  { id: 'pretension', label: 'Претензия', icon: '⚠️' }
+                  { id: 'dogovor', label: 'Договор', icon: FileEdit },
+                  { id: 'pretension', label: 'Претензия', icon: AlertTriangle }
                 ].map(item => (
                   <button
                     key={item.label}
                     onClick={() => { setSelectedTemplate(item.id); setShowDocModal(true); }}
                     className="p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-3 group"
                   >
-                    <span className="text-3xl transition-transform group-hover:scale-125 duration-500">{item.icon}</span>
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">{item.label}</span>
+                    <item.icon className="w-8 h-8 text-white/20 group-hover:text-white transition-all transform group-hover:scale-110" />
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -493,7 +522,7 @@ export default function DashboardPage() {
                 onClick={() => setShowDocModal(true)}
                 className="w-full glass-button-primary !py-5 shadow-[0_20px_40px_rgba(34,211,238,0.25)] flex items-center justify-center gap-3"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
+                <Plus className="w-5 h-5" />
                 Создать новый документ
               </button>
             </div>
@@ -514,11 +543,11 @@ export default function DashboardPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-10">
-              <h2 className="text-3xl font-black text-white flex items-center gap-4">
+              <h2 className="text-3xl font-bold text-white flex items-center gap-4">
                 <span className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
-                  <svg className="w-7 h-7 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" /></svg>
+                  <FileEdit className="w-7 h-7 text-orange-400" />
                 </span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50 uppercase tracking-tighter">Генератор</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50 tracking-tight">Генератор</span>
               </h2>
               <button
                 onClick={() => setShowDocModal(false)}
@@ -534,10 +563,10 @@ export default function DashboardPage() {
                 <label className="block text-[10px] font-black text-white/40 mb-4 uppercase tracking-[0.2em]">Тип документа</label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { value: 'pretension', label: 'Претензия', icon: '⚠️' },
-                    { value: 'isk', label: 'Иск', icon: '⚖️' },
-                    { value: 'dogovor', label: 'Договор', icon: '📝' },
-                    { value: 'dogovor', label: 'NDA', icon: '🔒' }
+                    { value: 'pretension', label: 'Претензия', icon: AlertTriangle },
+                    { value: 'isk', label: 'Иск', icon: Scale },
+                    { value: 'dogovor', label: 'Договор', icon: FileEdit },
+                    { value: 'nda', label: 'NDA', icon: Lock }
                   ].map(template => (
                     <button
                       key={template.label}
@@ -547,8 +576,8 @@ export default function DashboardPage() {
                         : 'border-white/5 bg-white/5 hover:border-white/10 hover:bg-white/10'
                         }`}
                     >
-                      <div className="text-2xl">{template.icon}</div>
-                      <div className={`text-[9px] font-black uppercase tracking-widest ${selectedTemplate === template.value ? 'text-orange-400' : 'text-white/40'}`}>
+                      <template.icon className={`w-8 h-8 ${selectedTemplate === template.value ? 'text-orange-400' : 'text-white/20'}`} />
+                      <div className={`text-[9px] font-bold uppercase tracking-widest ${selectedTemplate === template.value ? 'text-orange-400' : 'text-white/40'}`}>
                         {template.label}
                       </div>
                     </button>
@@ -594,15 +623,12 @@ export default function DashboardPage() {
                 >
                   {generatingDoc ? (
                     <>
-                      <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                      <Download className="animate-spin h-4 w-4" />
                       Генерация...
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      <Download className="w-4 h-4" />
                       Скачать DOCX
                     </>
                   )}

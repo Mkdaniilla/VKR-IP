@@ -16,6 +16,10 @@ import {
   getApiUrl,
 } from "../../lib/api";
 
+import AssetHealthRadar from "../../components/AssetHealthRadar";
+import WaterfallChart from "../../components/WaterfallChart";
+import { AlertTriangle, Zap, Download, ChevronRight } from "lucide-react";
+
 const API_URL = getApiUrl();
 
 // ================= Типы ==================
@@ -251,6 +255,12 @@ export default function ValuationPage() {
     }
     if (form.royalty_rate < 0 || form.royalty_rate > 100) {
       setError("Ставка роялти должна быть между 0 и 100%");
+      return;
+    }
+
+    // НОВАЯ ВАЛИДАЦИЯ: требуем хотя бы один финансовый параметр
+    if (form.annual_revenue === 0 && form.cost_rd === 0) {
+      setError("Для проведения оценки необходимо указать годовой доход от использования актива или затраты на его создание (R&D). Без финансовых данных профессиональная оценка невозможна.");
       return;
     }
 
@@ -1265,6 +1275,26 @@ export default function ValuationPage() {
                   />
                 </div>
               </div>
+
+              {/* Предупреждение о необходимости финансовых данных */}
+              {form.annual_revenue === 0 && form.cost_rd === 0 && (
+                <div className="mt-6 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/30 rounded-2xl p-5 relative overflow-hidden animate-in fade-in slide-in-from-top-2 duration-500">
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent opacity-50"></div>
+                  <div className="relative z-10 flex items-start gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center border border-amber-500/30">
+                      <AlertTriangle className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-black text-amber-400 uppercase tracking-wider mb-1.5">
+                        Требуются финансовые данные
+                      </h4>
+                      <p className="text-xs text-white/70 leading-relaxed font-medium">
+                        Для проведения профессиональной оценки необходимо указать <span className="text-amber-400 font-bold">годовой доход от использования актива</span> или <span className="text-amber-400 font-bold">затраты на его создание (R&D)</span>. Без финансовых данных расчёт стоимости невозможен.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Separator / Spacing */}
@@ -1363,33 +1393,62 @@ export default function ValuationPage() {
             <div className="glass-card p-10 rounded-[2.5rem] border-white/5 relative overflow-visible shadow-2xl group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-[40px] -mr-16 -mt-16 pointer-events-none group-hover:bg-cyan-500/20 transition-all"></div>
 
-              <div className="relative z-10 flex flex-col items-center md:items-start">
-                <div className="rounded-3xl w-24 h-24 mb-6 flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden group">
-                  <img src="/matryoshka_icon.png" alt="Matryoshka AI" className="w-full h-full object-cover animate-float" />
+              <div className="relative z-10 flex flex-col items-center md:items-start text-left">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="rounded-2xl w-16 h-16 flex items-center justify-center border border-white/10 shadow-2xl overflow-hidden bg-[#0f172a]">
+                    <img src="/matryoshka_icon.png" alt="Matryoshka AI" className="w-full h-full object-cover animate-float" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Матрешка AI</h3>
+                    <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-[8px] font-black text-cyan-400 uppercase tracking-widest">
+                      <Zap className="w-2 h-2 fill-current" />
+                      Powered Analysis
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-black text-white uppercase tracking-tighter mb-2">Матрешка AI</h3>
-                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-8 text-center md:text-left">
-                  Я проанализирую параметры и сформирую отчет по международным стандартам оценки.
+
+                <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-8">
+                  Я проанализирую параметры и сформирую отчет по международным стандартам оценки IVSC.
                 </p>
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="glass-button-primary w-full py-5 text-[10px] font-black uppercase tracking-[0.2em]"
+                  className="glass-button-primary w-full py-5 text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 group"
                 >
-                  {loading ? "Анализирую..." : "Запустить расчет"}
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      Анализирую данные...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 group-hover:scale-125 transition-transform" />
+                      Запустить расчет
+                    </>
+                  )}
                 </button>
-                {error && <div className="mt-6 text-[10px] bg-rose-500/10 p-4 rounded-2xl border border-rose-500/20 text-rose-400 font-bold uppercase tracking-widest">{error}</div>}
+                {error && (
+                  <div className="mt-6 text-[10px] bg-rose-500/10 p-4 rounded-2xl border border-rose-500/20 text-rose-400 font-bold uppercase tracking-widest flex items-center gap-3">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    {error}
+                  </div>
+                )}
               </div>
             </div>
 
             {res && (
               <div className="glass-card p-8 rounded-[2.5rem] border border-cyan-500/30 bg-cyan-500/5 animate-in zoom-in-95 duration-700 relative overflow-visible group">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <p className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] mb-2 relative z-10">Рыночная оценка</p>
-                <p className="text-4xl font-black text-white mb-6 relative z-10 tracking-tighter">
+                <p className="text-4xl font-black text-white mb-2 relative z-10 tracking-tighter">
                   <FormattedPrice value={res.final_value} currency={res.currency} />
                 </p>
-                <div className="pt-6 border-t border-white/10 relative z-10">
+                <WaterfallChart
+                  baseline={res.baseline_value}
+                  adjustment={res.ai_adjustment}
+                  final={res.final_value}
+                  currency={res.currency}
+                />
+                <div className="pt-6 border-t border-white/10 relative z-10 mt-6">
                   <button
                     onClick={() => handleOpenFile(`${API_URL}/api/valuation/report/${res.pdf_url.split("/").pop()}`, "Заключение_об_оценке.pdf")}
                     className="w-full py-4 text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400 hover:text-white transition-colors"
@@ -1410,7 +1469,8 @@ export default function ValuationPage() {
                 <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
                 Методология и факторы
               </h4>
-              <p className="text-sm text-white/50 italic mb-8 leading-relaxed bg-white/5 p-6 rounded-[1.5rem] border border-white/5 font-medium">
+              <AssetHealthRadar metrics={form.subtype_metrics} />
+              <p className="text-sm text-white/50 italic my-8 leading-relaxed bg-white/5 p-6 rounded-[1.5rem] border border-white/5 font-medium">
                 "{res.multiples_used.methodology}"
               </p>
               <ul className="space-y-4">

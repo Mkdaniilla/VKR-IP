@@ -8,6 +8,18 @@ import {
 } from "@/api/counterparties";
 import { Counterparty } from "@/types/counterparty";
 import Button from "@/components/ui/Button";
+import {
+  Users,
+  UserPlus,
+  Edit3,
+  Trash2,
+  Mail,
+  Phone,
+  MapPin,
+  X,
+  Plus,
+  Check
+} from "lucide-react";
 
 export default function CounterpartiesPage() {
   const [counterparties, setCounterparties] = useState<Counterparty[]>([]);
@@ -82,9 +94,9 @@ export default function CounterpartiesPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none"></div>
 
           <h2 className="text-xl font-black mb-8 text-white uppercase tracking-tighter flex items-center gap-4 relative z-10">
-            <span className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-lg">
-              {editingId ? "✏️" : "+"}
-            </span>
+            <div className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg">
+              {editingId ? <Edit3 className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+            </div>
             {editingId ? "Редактирование" : "Новый контрагент"}
           </h2>
 
@@ -130,16 +142,18 @@ export default function CounterpartiesPage() {
             <div className="md:col-span-2 flex gap-4 pt-4">
               <button
                 type="submit"
-                className="glass-button-primary flex-1 py-4"
+                className="glass-button-primary flex-1 py-4 flex items-center justify-center gap-3"
               >
+                {editingId ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 {editingId ? "Сохранить изменения" : "Добавить в базу"}
               </button>
               {editingId && (
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="glass-button-secondary py-4"
+                  className="glass-button-secondary py-4 flex items-center gap-2"
                 >
+                  <X className="w-4 h-4" />
                   Отмена
                 </button>
               )}
@@ -153,8 +167,8 @@ export default function CounterpartiesPage() {
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]"></div>
           </div>
         ) : counterparties.length === 0 ? (
-          <div className="text-center py-20 glass-card rounded-[2.5rem] border-white/5">
-            <div className="text-6xl mb-6 opacity-30">🤝</div>
+          <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-white/5 border-dashed">
+            <Users className="w-16 h-16 text-white/10 mx-auto mb-6" />
             <p className="text-white/40 text-lg font-bold uppercase tracking-widest leading-relaxed">Список контрагентов пуст</p>
             <p className="text-white/20 text-xs font-bold mt-2">Добавьте нового партнёра через форму выше</p>
           </div>
@@ -175,14 +189,16 @@ export default function CounterpartiesPage() {
                       <button
                         onClick={() => handleEdit(c)}
                         className="p-3 bg-white/5 text-white/40 rounded-xl hover:text-white hover:bg-white/10 transition-all border border-white/5"
+                        title="Редактировать"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(c.id)}
                         className="p-3 bg-rose-500/10 text-rose-500/40 rounded-xl hover:text-rose-500 hover:bg-rose-500/20 transition-all border border-rose-500/10"
+                        title="Удалить"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -202,8 +218,9 @@ export default function CounterpartiesPage() {
                       <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Email</span>
                       <a
                         href={`mailto:${c.email}`}
-                        className="text-sm text-cyan-400 font-bold hover:text-white transition-colors flex items-center gap-2"
+                        className="text-sm text-cyan-400 font-bold hover:text-white transition-colors flex items-center gap-3 group/link"
                       >
+                        <Mail className="w-3 h-3 group-hover/link:scale-110 transition-transform" />
                         {c.email}
                       </a>
                     </div>
@@ -213,8 +230,9 @@ export default function CounterpartiesPage() {
                       <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Телефон</span>
                       <a
                         href={`tel:${c.phone}`}
-                        className="text-sm text-white font-bold hover:text-cyan-400 transition-colors flex items-center gap-2"
+                        className="text-sm text-white font-bold hover:text-cyan-400 transition-colors flex items-center gap-3 group/link"
                       >
+                        <Phone className="w-3 h-3 group-hover/link:scale-110 transition-transform text-blue-400" />
                         {c.phone}
                       </a>
                     </div>
@@ -222,7 +240,10 @@ export default function CounterpartiesPage() {
                   {c.address && (
                     <div className="flex flex-col gap-2 group/item">
                       <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Юридический адрес</span>
-                      <span className="text-sm text-white/70 font-medium leading-relaxed">{c.address}</span>
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-4 h-4 text-white/20 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-white/70 font-medium leading-relaxed">{c.address}</span>
+                      </div>
                     </div>
                   )}
                 </div>

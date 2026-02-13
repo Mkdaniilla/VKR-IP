@@ -24,6 +24,24 @@ import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import SectionTitle from "../components/ui/SectionTitle";
 import FormattedPrice from "../components/FormattedPrice";
+import {
+  Package,
+  Zap,
+  Upload,
+  Search,
+  Lightbulb,
+  X,
+  FileText,
+  Trash2,
+  Edit,
+  RefreshCw,
+  ChevronRight,
+  Scale,
+  Plus,
+  AlertTriangle,
+  FileSearch,
+  Download
+} from "lucide-react";
 
 type Document = {
   id: number;
@@ -385,9 +403,9 @@ export default function IPObjectsPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none"></div>
 
           <h2 className="text-xl font-black mb-8 text-white uppercase tracking-tighter flex items-center gap-4 relative z-10">
-            <span className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white w-10 h-10 rounded-2xl flex items-center justify-center text-lg shadow-lg">
-              +
-            </span>
+            <div className="bg-gradient-to-br from-cyan-400 to-blue-500 text-white w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg">
+              <Plus className="w-5 h-5" strokeWidth={3} />
+            </div>
             Добавить актив
           </h2>
 
@@ -405,6 +423,7 @@ export default function IPObjectsPage() {
             <div className="md:col-span-4">
               <select
                 className="glass-input w-full font-bold appearance-none cursor-pointer"
+                title="Тип объекта"
                 value={type}
                 onChange={(e) => {
                   setType(e.target.value as IPType);
@@ -458,9 +477,9 @@ export default function IPObjectsPage() {
 
         {/* Objects Grid */}
         {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">📦</div>
-            <p className="text-gray-500 text-lg">
+          <div className="text-center py-20 bg-white/5 rounded-[3rem] border border-white/5 border-dashed">
+            <Package className="w-16 h-16 text-white/10 mx-auto mb-6" />
+            <p className="text-white/40 text-lg font-bold uppercase tracking-widest">
               Нет объектов для выбранного фильтра
             </p>
           </div>
@@ -499,14 +518,16 @@ export default function IPObjectsPage() {
                     <div className="flex flex-col md:flex-row gap-3">
                       <button
                         onClick={() => router.push({ pathname: '/valuation', query: { objectId: it.id } })}
-                        className="glass-button-primary py-2 text-[10px]"
+                        className="glass-button-primary py-2 text-[10px] flex items-center gap-2 group/btn"
                       >
-                        ⚡ Оценка
+                        <Zap className="w-3 h-3 text-cyan-400 group-hover/btn:fill-cyan-400" />
+                        Оценка
                       </button>
                       <button
                         onClick={() => onDelete(it.id)}
-                        className="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-6 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95"
+                        className="bg-rose-500/10 text-rose-500 border border-rose-500/20 px-6 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-lg active:scale-95 flex items-center gap-2"
                       >
+                        <Trash2 className="w-3 h-3" />
                         Удалить
                       </button>
                     </div>
@@ -535,7 +556,7 @@ export default function IPObjectsPage() {
                   {it.estimated_value && (
                     <div className="mb-8 p-6 bg-cyan-400/5 rounded-[1.5rem] border border-cyan-400/20 relative overflow-hidden group/price">
                       <div className="absolute top-0 right-0 p-4 opacity-10 group-hover/price:opacity-20 transition-opacity">
-                        <svg className="w-16 h-16 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.82v-1.91c-1.54-.13-3.04-.76-4.03-1.74l1.39-1.39c.67.66 1.76 1.25 2.64 1.25.9 0 1.57-.44 1.57-1.12 0-.69-.53-1-1.83-1.31-2.18-.53-3.66-1.55-3.66-3.4 0-1.78 1.4-2.91 3.12-3.19V5h2.82v1.94c1.23.16 2.37.66 3.14 1.4l-1.39 1.39c-.5-.46-1.28-.8-1.76-.8-1 0-1.59.51-1.59 1.09 0 .61.56.91 1.9 1.24 2.18.53 3.59 1.53 3.59 3.5 0 1.72-1.26 2.91-2.9 3.32z" /></svg>
+                        <Scale className="w-16 h-16 text-cyan-400" />
                       </div>
                       <div className="flex items-center justify-between relative z-10">
                         <span className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.2em]">
@@ -551,9 +572,9 @@ export default function IPObjectsPage() {
                   {it.report_path && (
                     <button
                       onClick={() => handleOpenFile(`${API_URL}/api/valuation/report/${it.report_path?.split("/").pop()}`, "Отчет_об_оценке.pdf")}
-                      className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 text-cyan-400 rounded-2xl border border-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-widest transition-all mb-8 shadow-xl"
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 text-cyan-400 rounded-2xl border border-white/5 hover:bg-white/10 font-black text-[10px] uppercase tracking-widest transition-all mb-8 shadow-xl group/report"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                      <FileText className="w-4 h-4 group-hover/report:scale-110 transition-transform" />
                       Полный отчет (PDF)
                     </button>
                   )}
@@ -565,6 +586,7 @@ export default function IPObjectsPage() {
                     </label>
                     <select
                       value={it.status}
+                      title="Выбор статуса"
                       onChange={(e) => onStatusChange(it.id, e.target.value)}
                       className="w-full glass-input font-bold appearance-none cursor-pointer"
                     >
@@ -585,8 +607,9 @@ export default function IPObjectsPage() {
                       </h4>
                       <button
                         onClick={() => loadDocs(it.id)}
-                        className="text-[10px] font-black text-white/30 hover:text-cyan-400 transition-colors uppercase tracking-widest"
+                        className="text-[10px] font-black text-white/30 hover:text-cyan-400 transition-colors uppercase tracking-widest flex items-center gap-2 group/refresh"
                       >
+                        <RefreshCw className="w-3 h-3 group-hover/refresh:rotate-180 transition-transform duration-700" />
                         Обновить
                       </button>
                     </div>
@@ -618,17 +641,22 @@ export default function IPObjectsPage() {
                               <button
                                 onClick={() => onAnalyzeDoc(doc.id)}
                                 disabled={analyzingDocId === doc.id}
-                                className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all shadow-lg"
+                                className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all shadow-lg flex items-center gap-2 group/audit"
                                 title="Аудит рисков"
                               >
-                                {analyzingDocId === doc.id ? "⌛" : "🔍 Аудит"}
+                                {analyzingDocId === doc.id ? (
+                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <FileSearch className="w-3 h-3 group-hover/audit:scale-110" />
+                                )}
+                                {analyzingDocId === doc.id ? "Анализ..." : "Аудит"}
                               </button>
                               <button
                                 onClick={() => onDeleteDoc(it.id, doc.id)}
                                 disabled={deletingDocId === doc.id}
-                                className="text-white/20 hover:text-rose-500 text-sm p-1 leading-none transition-colors"
+                                className="text-white/20 hover:text-rose-500 p-1 transition-colors"
                               >
-                                {deletingDocId === doc.id ? "..." : "×"}
+                                {deletingDocId === doc.id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <X className="w-4 h-4" />}
                               </button>
                             </div>
                           </div>
@@ -639,7 +667,7 @@ export default function IPObjectsPage() {
                     {/* Upload */}
                     <div className="mb-10">
                       <label className="cursor-pointer inline-flex items-center justify-center gap-3 w-full p-4 bg-white/5 border border-dashed border-white/20 rounded-2xl hover:border-cyan-400/50 hover:bg-white/10 text-[10px] font-black text-white/40 hover:text-white uppercase tracking-[0.2em] transition-all group">
-                        <span className="text-xl group-hover:scale-125 transition-transform">📤</span>
+                        <Upload className="w-4 h-4 group-hover:scale-125 transition-transform" />
                         {uploadingIpId === it.id ? "Загрузка файла..." : "Загрузить новый документ"}
                         <input
                           type="file"
@@ -683,6 +711,7 @@ export default function IPObjectsPage() {
                         </div>
                         <div className="md:col-span-4">
                           <select
+                            title="Контрагент"
                             value={counterpartyChoice[it.id] || ""}
                             onChange={(e) =>
                               setCounterpartyChoice((p) => ({
@@ -728,17 +757,23 @@ export default function IPObjectsPage() {
                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Юридический аудит</h2>
                 <p className="text-cyan-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-2">Анализ рисков Smart AI</p>
               </div>
-              <button onClick={() => setShowAnalysisModal(false)} className="text-white/30 hover:text-white text-4xl transition-colors">×</button>
+              <button
+                onClick={() => setShowAnalysisModal(false)}
+                className="text-white/30 hover:text-white transition-colors"
+                title="Закрыть"
+              >
+                <X className="w-8 h-8" />
+              </button>
             </div>
 
             <div className="p-10 max-h-[60vh] overflow-y-auto space-y-10 custom-scrollbar">
               {/* Summary */}
               <div className="p-6 bg-white/5 rounded-2xl border-l-4 border-cyan-500 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <svg className="w-12 h-12 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" /></svg>
+                  <FileText className="w-12 h-12 text-cyan-400" />
                 </div>
                 <h3 className="font-black text-white text-[10px] uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
                   Резюме
                 </h3>
                 <p className="text-white/70 text-sm leading-relaxed relative z-10 font-medium italic">"{analysisResult?.summary}"</p>
@@ -759,14 +794,16 @@ export default function IPObjectsPage() {
                       return (
                         <div key={i} className="p-4 bg-rose-500/10 rounded-2xl text-rose-300 text-xs font-bold border border-rose-500/20">
                           <div className="flex items-start gap-3">
-                            <span className="flex-shrink-0 w-6 h-6 bg-rose-500/20 text-rose-400 rounded-lg flex items-center justify-center text-[10px] font-black">{i + 1}</span>
-                            <div className="flex-1">
-                              <div className="font-black text-white mb-1">{String(title)}</div>
-                              {desc && <div className="text-[10px] opacity-70 mt-1">{String(desc)}</div>}
+                            <div className="flex-shrink-0 w-8 h-8 bg-rose-500/20 rounded-lg flex items-center justify-center border border-rose-500/20">
+                              <AlertTriangle className="w-4 h-4 text-rose-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-black text-white mb-1 truncate">{String(title)}</div>
+                              {desc && <div className="text-[10px] opacity-70 mt-1 leading-relaxed">{String(desc)}</div>}
                             </div>
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -779,15 +816,12 @@ export default function IPObjectsPage() {
                   </h3>
                   <div className="space-y-3">
                     {(analysisResult?.recommendations || analysisResult?.improvements)?.map((rec: any, i: number) => {
-                      const icon = (typeof rec === 'object' ? rec.icon : null) || '💡';
-                      const text = typeof rec === 'object' ? (rec.text || rec.title || JSON.stringify(rec)) : rec;
-
                       return (
-                        <div key={i} className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-300 text-xs font-bold border border-emerald-500/20 flex gap-4 transition-all hover:bg-emerald-500/20">
-                          <span className="flex-shrink-0 text-2xl">{String(icon)}</span>
-                          <div className="flex-1">{String(text)}</div>
+                        <div key={i} className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-300 text-xs font-bold border border-emerald-500/20 flex gap-4 transition-all hover:bg-emerald-500/20 group/rec">
+                          <Lightbulb className="w-6 h-6 text-emerald-400 group-hover/rec:scale-110 transition-transform flex-shrink-0" />
+                          <div className="flex-1 leading-relaxed">{String(rec.text || rec.title || rec)}</div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -802,10 +836,10 @@ export default function IPObjectsPage() {
                     router.push(`/document-viewer/${lastAnalyzedDocId}`);
                   }
                 }}
-                className="glass-button-secondary flex items-center gap-2"
+                className="glass-button-secondary flex items-center gap-2 group/viewer"
                 disabled={!lastAnalyzedDocId}
               >
-                <span>📄</span>
+                <FileText className="w-4 h-4 group-hover/viewer:text-cyan-400" />
                 Открыть с подсветкой
               </button>
               <button
