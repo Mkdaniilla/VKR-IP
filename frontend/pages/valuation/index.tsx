@@ -14,6 +14,7 @@ import {
   ValuationPayload,
   getProtectedFileUrl,
   getApiUrl,
+  IP_TYPES_RU,
 } from "../../lib/api";
 
 import AssetHealthRadar from "../../components/AssetHealthRadar";
@@ -371,7 +372,7 @@ export default function ValuationPage() {
                     options={[
                       { label: "✨ Новый актив (без привязки)", value: "" },
                       ...ipObjects.map(obj => ({
-                        label: `${obj.title} (${obj.type})`,
+                        label: `${obj.title} (${IP_TYPES_RU[obj.type as keyof typeof IP_TYPES_RU] || obj.type})`,
                         value: obj.id.toString()
                       }))
                     ]}
