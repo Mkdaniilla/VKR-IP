@@ -337,39 +337,72 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Counterparties Section */}
-            <div className="space-y-6">
-              <div className="flex justify-between items-center px-4">
-                <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-                  Контрагенты и сети
-                </h3>
-                <Link href="/counterparties" className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/20 transition uppercase tracking-widest">Все партнеры</Link>
-              </div>
+            {/* Counterparties & Document Management Row */}
+            <div className="grid grid-cols-12 gap-8 items-start">
+              <div className="col-span-12 xl:col-span-8 space-y-6">
+                <div className="flex justify-between items-center px-4">
+                  <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                    Контрагенты
+                  </h3>
+                  <Link href="/counterparties" className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/20 transition uppercase tracking-widest">Все партнеры</Link>
+                </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {partnerList.map((p, i) => (
-                  <div key={p.id} className="glass-card hover:bg-white/10 transition-all p-6 rounded-[2rem] border-white/5 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-[20px] -mr-12 -mt-12 transition group-hover:bg-cyan-500/10"></div>
-                    <div className="flex flex-col items-center text-center">
-                      <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white font-black text-xl bg-gradient-to-br ${['from-cyan-500 to-blue-600', 'from-purple-500 to-pink-600', 'from-orange-500 to-rose-600', 'from-emerald-500 to-teal-600'][i % 4]
-                        } shadow-xl border border-white/20 mb-4 transition-transform group-hover:scale-110 duration-500`}>
-                        {p.name.charAt(0)}
-                      </div>
-                      <div className="text-sm font-bold text-white mb-1 uppercase tracking-tight group-hover:text-cyan-400 transition-colors w-full truncate">{p.name}</div>
-                      <div className="text-[10px] font-bold text-white/30 truncate w-full uppercase tracking-widest">{p.contact_person || "Контрагент"}</div>
-
-                      <div className="mt-6 flex gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 transition cursor-pointer">
-                          <Mail className="w-4 h-4" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {partnerList.map((p, i) => (
+                    <div key={p.id} className="glass-card hover:bg-white/10 transition-all p-6 rounded-[2rem] border-white/5 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-[20px] -mr-12 -mt-12 transition group-hover:bg-cyan-500/10"></div>
+                      <div className="flex items-center gap-4">
+                        <div className={`w-14 h-14 rounded-[1.25rem] flex-shrink-0 flex items-center justify-center text-white font-black text-lg bg-gradient-to-br ${['from-cyan-500 to-blue-600', 'from-purple-500 to-pink-600', 'from-orange-500 to-rose-600', 'from-emerald-500 to-teal-600'][i % 4]
+                          } shadow-lg border border-white/20 transition-transform group-hover:scale-105 duration-500`}>
+                          {p.name.charAt(0)}
                         </div>
-                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 transition cursor-pointer">
-                          <Phone className="w-4 h-4" />
+                        <div className="flex-1 overflow-hidden">
+                          <div className="text-sm font-bold text-white mb-0.5 uppercase tracking-tight group-hover:text-cyan-400 transition-colors truncate">{p.name}</div>
+                          <div className="text-[9px] font-bold text-white/30 truncate uppercase tracking-widest">{p.contact_person || "Контрагент"}</div>
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-span-12 xl:col-span-4">
+                {/* Smart Document Generator Widget */}
+                <div className="glass-card rounded-[2.5rem] p-8 border-white/5 relative overflow-hidden group h-full">
+                  <div className="absolute bottom-0 right-0 w-48 h-48 bg-orange-500/5 rounded-full blur-[40px] -mr-24 -mb-24"></div>
+
+                  <div className="flex justify-between items-center mb-8">
+                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <span className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
+                      Документооборот
+                    </h3>
                   </div>
-                ))}
+
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    {[
+                      { id: 'dogovor', label: 'Договор', icon: FileEdit },
+                      { id: 'pretension', label: 'Претензия', icon: AlertTriangle }
+                    ].map(item => (
+                      <button
+                        key={item.label}
+                        onClick={() => { setSelectedTemplate(item.id); setShowDocModal(true); }}
+                        className="p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-3 group/btn"
+                      >
+                        <item.icon className="w-8 h-8 text-white/20 group-hover/btn:text-white transition-all transform group-hover/btn:scale-110" />
+                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setShowDocModal(true)}
+                    className="w-full glass-button-primary !py-5 shadow-[0_20px_40px_rgba(34,211,238,0.25)] flex items-center justify-center gap-3"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Новый документ</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -378,154 +411,6 @@ export default function DashboardPage() {
           <div className="col-span-12 lg:col-span-4 space-y-10">
 
             {/* Capitalization Widget Refined */}
-            <div className="glass-card rounded-[2.5rem] p-8 border-white/5 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-              <div className="flex justify-between items-center mb-10 relative z-10">
-                <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
-                  Капитализация
-                </h3>
-                <Link href="/valuation" className="bg-white/5 border border-white/10 p-2 rounded-xl text-white/20 hover:text-white transition">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
-                </Link>
-              </div>
-
-              {/* Enhanced Interactive Chart */}
-              <div className="relative flex justify-center mb-10">
-                {(() => {
-                  const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
-                    const t = String(a.type);
-                    acc[t] = (acc[t] || 0) + (a.estimated_value || 0);
-                    return acc;
-                  }, {});
-
-                  const colors: Record<string, string> = {
-                    software: '#10b981',
-                    trademark: '#3b82f6',
-                    patent: '#f59e0b',
-                    copyright: '#8b5cf6',
-                    design: '#ec4899',
-                    invention: '#f59e0b',
-                    literary_work: '#8b5cf6'
-                  };
-
-                  const chartData = Object.keys(breakdown).map(type => ({
-                    name: IP_TYPES_RU[type as IPType] || type,
-                    value: breakdown[type],
-                    color: colors[type] || '#cbd5e1'
-                  })).filter(d => d.value > 0);
-
-                  if (chartData.length === 0) {
-                    return (
-                      <div className="h-48 flex items-center justify-center text-white/20 text-[10px] font-black uppercase tracking-widest">
-                        Нет данных для анализа
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="relative w-full">
-                      <PortfolioChart data={chartData} />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-[36px]">
-                        <div className="text-[10px] text-white/20 font-bold uppercase tracking-[0.2em]">ИТОГО</div>
-                        <div className="text-2xl font-bold font-mono text-white leading-none mt-1">
-                          <FormattedPrice value={stats.totalValue} currency="" />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              <div className="space-y-3 mb-10">
-                {(() => {
-                  const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
-                    const t = String(a.type);
-                    acc[t] = (acc[t] || 0) + (a.estimated_value || 0);
-                    return acc;
-                  }, {});
-                  const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 3);
-                  const typeColors: Record<string, string> = {
-                    software: 'bg-emerald-500',
-                    trademark: 'bg-blue-500',
-                    patent: 'bg-amber-500',
-                    copyright: 'bg-purple-500',
-                    design: 'bg-pink-500',
-                    invention: 'bg-amber-500',
-                    literary_work: 'bg-purple-500'
-                  };
-
-                  return types.map(type => (
-                    <div key={type} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 group-hover:bg-white/10 transition">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${typeColors[type] || 'bg-slate-300'} shadow-[0_0_10px_rgba(255,255,255,0.1)]`}></div>
-                        <span className="text-[11px] font-bold text-white/50 uppercase tracking-tighter">
-                          {IP_TYPES_RU[type as IPType] || type}
-                        </span>
-                      </div>
-                      <div className="text-xs font-bold font-mono text-white"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
-                    </div>
-                  ));
-                })()}
-              </div>
-
-              {/* Value Distribution Bar Chart */}
-              <div className="mt-10 pt-10 border-t border-white/5">
-                <h4 className="text-[10px] font-black text-white/40 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="w-2 h-px bg-cyan-400"></span>
-                  Топ-5 активов по стоимости
-                </h4>
-                {(() => {
-                  const topAssets = [...allAssets]
-                    .sort((a, b) => (b.estimated_value || 0) - (a.estimated_value || 0))
-                    .slice(0, 5)
-                    .map(a => ({
-                      name: a.title,
-                      value: a.estimated_value || 0
-                    }));
-
-                  if (topAssets.length === 0) return null;
-                  return <ValueBarChart data={topAssets} />;
-                })()}
-              </div>
-            </div>
-
-            {/* Smart Document Generator Widget */}
-            <div className="glass-card rounded-[2.5rem] p-8 border-white/5 relative overflow-hidden group">
-              <div className="absolute bottom-0 right-0 w-48 h-48 bg-orange-500/5 rounded-full blur-[40px] -mr-24 -mb-24"></div>
-
-              <div className="flex justify-between items-center mb-8">
-                <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
-                  Документооборот
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {[
-                  { id: 'dogovor', label: 'Договор', icon: FileEdit },
-                  { id: 'pretension', label: 'Претензия', icon: AlertTriangle }
-                ].map(item => (
-                  <button
-                    key={item.label}
-                    onClick={() => { setSelectedTemplate(item.id); setShowDocModal(true); }}
-                    className="p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-3 group"
-                  >
-                    <item.icon className="w-8 h-8 text-white/20 group-hover:text-white transition-all transform group-hover:scale-110" />
-                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowDocModal(true)}
-                className="w-full glass-button-primary !py-5 shadow-[0_20px_40px_rgba(34,211,238,0.25)] flex items-center justify-center gap-3"
-              >
-                <Plus className="w-5 h-5" />
-                Создать новый документ
-              </button>
-            </div>
 
           </div>
         </div>
