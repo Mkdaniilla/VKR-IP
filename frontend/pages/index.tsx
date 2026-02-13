@@ -14,7 +14,8 @@ import {
   Layout,
   Globe,
   Database,
-  Cpu
+  Cpu,
+  Plus
 } from "lucide-react";
 
 export default function Landing() {
