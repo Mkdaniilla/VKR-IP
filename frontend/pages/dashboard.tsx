@@ -424,8 +424,8 @@ export default function DashboardPage() {
                 </h3>
               </div>
 
-              {/* Portfolio breakdown logic inside the sidebar */}
-              <div className="relative flex justify-center mb-8">
+              {/* Enhanced Interactive Chart */}
+              <div className="relative flex justify-center mb-10 pt-4">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
                     const t = String(a.type);
@@ -449,27 +449,52 @@ export default function DashboardPage() {
                     color: colors[type] || '#cbd5e1'
                   })).filter(d => d.value > 0);
 
-                  if (chartData.length === 0) return <div className="h-32 flex items-center justify-center text-white/20 text-[10px]">Нет данных</div>;
-                  return <div className="w-full h-40"><PortfolioChart data={chartData} /></div>;
+                  if (chartData.length === 0) {
+                    return (
+                      <div className="h-40 flex items-center justify-center text-white/20 text-[10px] font-black uppercase tracking-widest">
+                        Нет данных
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="relative w-full h-48">
+                      <PortfolioChart data={chartData} />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-[20px]">
+                        <div className="text-[9px] text-white/20 font-black uppercase tracking-[0.2em]">ИТОГО</div>
+                        <div className="text-xl font-black font-mono text-white leading-none mt-1">
+                          <FormattedPrice value={stats.totalValue} currency="" />
+                        </div>
+                      </div>
+                    </div>
+                  );
                 })()}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
                     const t = String(a.type);
                     acc[t] = (acc[t] || 0) + (a.estimated_value || 0);
                     return acc;
                   }, {});
-                  const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 2);
-                  const colors: Record<string, string> = { software: 'bg-emerald-500', trademark: 'bg-blue-500', patent: 'bg-amber-500' };
-                  return types.map(t => (
-                    <div key={t} className="flex justify-between items-center text-[10px] font-bold p-2 bg-white/5 rounded-xl border border-white/5 uppercase">
-                      <span className="flex items-center gap-2 text-white/40">
-                        <span className={`w-1.5 h-1.5 rounded-full ${colors[t] || 'bg-white/20'}`}></span>
-                        {IP_TYPES_RU[t as IPType] || t}
-                      </span>
-                      <span className="text-white"><FormattedPrice value={breakdown[t]} currency="₽" /></span>
+                  const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 3);
+                  const typeColors: Record<string, string> = {
+                    software: 'bg-emerald-500',
+                    trademark: 'bg-blue-500',
+                    patent: 'bg-amber-500',
+                    copyright: 'bg-purple-500'
+                  };
+
+                  return types.map(type => (
+                    <div key={type} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 group-hover/stat:bg-white/10 transition">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${typeColors[type] || 'bg-slate-300'}`}></div>
+                        <span className="text-[10px] font-bold text-white/50 uppercase tracking-tighter truncate">
+                          {IP_TYPES_RU[type as IPType] || type}
+                        </span>
+                      </div>
+                      <div className="text-xs font-bold font-mono text-white flex-shrink-0"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
                     </div>
                   ));
                 })()}
