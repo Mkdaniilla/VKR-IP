@@ -361,6 +361,24 @@ export default function ValuationPage() {
               </h3>
 
               <div className="grid md:grid-cols-2 gap-10">
+                <div className="md:col-span-2 space-y-4 pb-6 border-b border-white/5">
+                  <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                    Связанный объект из портфеля <Tooltip text="Выберите объект, чтобы загрузить его базовые данные." />
+                  </label>
+                  <CustomSelect
+                    value={form.ip_object_id || ""}
+                    onChange={v => bind("ip_object_id", v ? Number(v) : null)}
+                    options={[
+                      { label: "✨ Новый актив (без привязки)", value: "" },
+                      ...ipObjects.map(obj => ({
+                        label: `${obj.title} (${obj.type})`,
+                        value: obj.id.toString()
+                      }))
+                    ]}
+                  />
+                  {ipObjectsError && <p className="text-[9px] text-rose-400 font-bold uppercase tracking-tighter">{ipObjectsError}</p>}
+                </div>
+
                 <div className="space-y-4">
                   <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
                     Тип объекта <Tooltip text="Юридическая категория актива согласно ГК РФ." />
