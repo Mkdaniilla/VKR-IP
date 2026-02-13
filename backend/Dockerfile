@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM m.daocloud.io/docker.io/library/python:3.11-slim
 
 # Настройки Python
 ENV PYTHONDONTWRITEBYTECODE=1
