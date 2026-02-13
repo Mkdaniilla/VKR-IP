@@ -386,52 +386,51 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         content.append(Spacer(1, 5))
 
     # --- 2. Financial Results ---
-    content.append(Paragraph("2. Финансовые результаты", styles["SectionHeader"]))
+    content.append(Paragraph("2. Результаты профессиональной оценки", styles["SectionHeader"]))
+    
+    pro_factors = results.get("multiples_used", {}).get("pro_factors", {})
     
     res_data = [
         ["Показатель", "Значение"],
-        ["Базовая оценка (Доходный/Затратный метод)", fmt_curr(results['baseline_value'])],
-        ["Корректировка (Сила бренда, Риски, Рынок)", fmt_curr(results['ai_adjustment'])],
-        ["Дисконт риска (Risk Discount)", f"{results['risk_discount']}%"],
-        ["ИТОГОВАЯ РЫНОЧНАЯ СТОИМОСТЬ", fmt_curr(results['final_value'])],
+        ["Базовая финансовая модель (DCF)", fmt_curr(results['baseline_value'])],
+        ["Ставка дисконтирования (RADR)", pro_factors.get("discount_rate", "12%")],
+        ["Ставка роялти (Industry Benchmark)", pro_factors.get("royalty_rate", "5%")],
+        ["Юридический рычаг (Legal Robustness)", pro_factors.get("legal_weight", "0%")],
+        ["Корректировка стоимости", fmt_curr(results['ai_adjustment'])],
+        ["ИТОГОВАЯ СТОИМОСТЬ АКТИВА", fmt_curr(results['final_value'])],
     ]
     
-    t2 = Table(res_data, colWidths=[100*mm, 70*mm])
+    t2 = Table(res_data, colWidths=[110*mm, 60*mm])
     t2.setStyle(TableStyle([
         ('FONTNAME', (0,0), (-1,-1), FONT),
         ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#334155")), # Header bg
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0f172a")), # Dark header
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('ALIGN', (0,0), (-1,0), 'CENTER'),
-        
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
-        
-        # Highlight final row
-        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#dcfce7")), # Green-100
-        ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor("#166534")), # Green-800
-        ('FONTSIZE', (0,-1), (-1,-1), 11),
-        ('FONTNAME', (0,-1), (-1,-1), FONT), # Bold if possible but using base font
-        
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e2e8f0")),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#f0fdf4")), # Emerald-50
+        ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor("#15803d")), # Emerald-700
+        ('FONTSIZE', (0,-1), (-1,-1), 12),
         ('PADDING', (0,0), (-1,-1), 8),
     ]))
     content.append(t2)
     content.append(Spacer(1, 15))
 
     # --- Explanation Block ---
-    content.append(Paragraph("Пояснение к расчетам:", styles["BodyCyr"]))
+    content.append(Paragraph("Методологические пояснения:", styles["BodyCyr"]))
     explanation_style = ParagraphStyle(
         'Explanation',
         parent=styles['BodyCyr'],
         fontSize=9,
-        textColor=colors.HexColor("#475569"),
+        textColor=colors.HexColor("#64748b"),
         spaceAfter=6,
         leftIndent=10
     )
     
     explanations = [
-        "<b>• Базовая оценка:</b> Расчетная стоимость, основанная на ваших финансовых показателях (выручка, роялти) или затратах на разработку (R&D).",
-        "<b>• Корректировка:</b> Дополнительная стоимость, создаваемая нематериальными активами: силой бренда, географией присутствия и юридической защищенностью. Сильные активы стоят дороже их базовых финансовых потоков.",
-        "<b>• Дисконт риска:</b> Скидка на неопределенность. Учитывает риски потери прав, копирования конкурентами или изменения рыночной ситуации. Чем надежнее защита, тем ниже дисконт."
+        f"<b>• Модель DCF:</b> Оценка основана на методе дисконтированных денежных потоков. Мы дисконтируем будущие выгоды к текущему моменту по ставке {pro_factors.get('discount_rate')}.",
+        f"<b>• Ставка роялти:</b> Применена ставка {pro_factors.get('royalty_rate')}, соответствующая рыночным индикаторам для отрасли {INDUSTRY_MAP.get(payload.get('industry', 'it'))}.",
+        "<b>• Юридический рычаг:</b> Коэффициент, отражающий качество правовой защиты. Наличие судов, экспертиз и международных регистраций кратно повышает ликвидность актива."
     ]
     
     for explanation in explanations:
