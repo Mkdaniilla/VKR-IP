@@ -107,7 +107,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="relative animate-in zoom-in duration-1000">
+          <div className="relative animate-in zoom-in duration-1000 lg:-mt-20">
             <div className="glass-card p-4 rounded-[3.5rem] border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.1)] overflow-hidden bg-white/5 backdrop-blur-3xl group">
               <div className="bg-[#0f172a]/80 rounded-[3rem] overflow-hidden border border-white/5 shadow-inner">
                 <div className="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/5">
@@ -116,28 +116,27 @@ export default function Landing() {
                     <span className="w-3 h-3 rounded-full bg-amber-500/50"></span>
                     <span className="w-3 h-3 rounded-full bg-emerald-500/50"></span>
                   </div>
-                  <div className="text-[9px] font-bold text-white/10 tracking-[0.3em] uppercase">Control Dashboard</div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+                    <div className="text-[9px] font-black text-white/20 tracking-[0.3em] uppercase">Документооборот</div>
+                  </div>
                 </div>
                 <div className="p-8 space-y-8">
-                  <div className="flex items-center justify-between">
-                    <div className="h-4 bg-white/10 rounded-full w-1/3"></div>
-                    <div className="h-8 bg-cyan-400/20 rounded-xl w-20 border border-cyan-400/20"></div>
-                  </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div className="h-40 bg-gradient-to-br from-cyan-500/10 to-transparent rounded-[2rem] border border-white/5 flex flex-col items-center justify-center gap-3 group-hover:bg-cyan-500/5 transition-all">
-                      <BarChart3 className="w-8 h-8 text-cyan-400" />
-                      <div className="h-2 bg-white/5 rounded-full w-1/2"></div>
+                      <FileCode2 className="w-8 h-8 text-white/20" />
+                      <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">Договор</div>
                     </div>
                     <div className="h-40 bg-gradient-to-br from-blue-500/10 to-transparent rounded-[2rem] border border-white/5 flex flex-col items-center justify-center gap-3">
-                      <Layout className="w-8 h-8 text-blue-400" />
-                      <div className="h-2 bg-white/5 rounded-full w-1/2"></div>
+                      <Shield className="w-8 h-8 text-white/20" />
+                      <div className="text-[10px] font-black text-white/30 uppercase tracking-widest">Претензия</div>
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    <div className="h-3 bg-white/5 rounded-full w-full"></div>
-                    <div className="h-3 bg-white/5 rounded-full w-4/5"></div>
-                    <div className="h-3 bg-white/5 rounded-full w-2/3"></div>
-                  </div>
+
+                  <button className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center gap-3 shadow-lg transform group-hover:scale-[1.02] transition-all">
+                    <Plus className="w-5 h-5 text-white" />
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Создать новый документ</span>
+                  </button>
                 </div>
               </div>
             </div>
