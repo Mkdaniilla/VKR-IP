@@ -1,19 +1,26 @@
 FROM python:3.11-slim
 
-# Установка curl (и других утилит при необходимости)
-RUN apt-get update && apt-get install -y curl
+# Настройки Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Установка рабочей директории
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Копируем всё из корня проекта (включая app/, requirements.txt и т.д.)
-COPY . /app
-
-# ✅ Явно добавляем шрифты (чтобы DejaVuLGCSans.ttf точно попал в образ)
-COPY ./app/static/fonts /app/static/fonts
-
-# Установка зависимостей
+# Копируем requirements первым для использования кэша Docker
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Команда запуска
+# Копируем остальной код
+COPY . .
+
+# Явно копируем шрифты
+COPY ./app/static/fonts /app/static/fonts
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

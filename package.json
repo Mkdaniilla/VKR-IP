@@ -1,7 +1,5 @@
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-};
-
+{
+    "name": "vkr-ip-root",
+    "private": true,
+    "description": "Root configuration for VKR IP project"
+}

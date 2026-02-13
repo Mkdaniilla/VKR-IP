@@ -107,8 +107,8 @@ def local_ai_generate(payload: dict) -> Dict[str, Any]:
     )
 
     # --- 5. РАСЧЕТ РЫНОЧНОЙ СТОИМОСТИ (Упрощенный для AI-генератора) ---
+    # Если нет ни выручки, ни затрат - возвращаем 0, чтобы основной движок обработал ошибку
     market_est = (revenue * 3.5) + (costs * 1.2)
-    if market_est == 0: market_est = 500000.0 # Минималка для заглушки
 
     return {
         "valuation_analysis": {
