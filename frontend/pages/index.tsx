@@ -108,7 +108,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="relative animate-in zoom-in duration-1000 lg:-mt-20">
+          <div className="relative animate-in zoom-in duration-1000 lg:-mt-40">
             <div className="glass-card p-4 rounded-[3.5rem] border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.1)] overflow-hidden bg-white/5 backdrop-blur-3xl group">
               <div className="bg-[#0f172a]/80 rounded-[3rem] overflow-hidden border border-white/5 shadow-inner">
                 <div className="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/5">
