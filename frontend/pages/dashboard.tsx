@@ -424,8 +424,8 @@ export default function DashboardPage() {
                 </h3>
               </div>
 
-              {/* Enhanced Interactive Chart */}
-              <div className="relative flex justify-center mb-10 pt-4">
+              {/* Optimized Interactive Chart with Centered Total */}
+              <div className="relative flex justify-center mb-6 h-56 transition-all duration-700">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
                     const t = String(a.type);
@@ -451,18 +451,19 @@ export default function DashboardPage() {
 
                   if (chartData.length === 0) {
                     return (
-                      <div className="h-40 flex items-center justify-center text-white/20 text-[10px] font-black uppercase tracking-widest">
+                      <div className="h-full flex items-center justify-center text-white/10 text-[10px] font-black uppercase tracking-[0.3em]">
                         Нет данных
                       </div>
                     );
                   }
 
                   return (
-                    <div className="relative w-full h-48">
+                    <div className="relative w-full h-full group/chart">
                       <PortfolioChart data={chartData} />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none pb-[20px]">
-                        <div className="text-[9px] text-white/20 font-black uppercase tracking-[0.2em]">ИТОГО</div>
-                        <div className="text-xl font-black font-mono text-white leading-none mt-1">
+                      {/* Centered Overlay */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none transform -translate-y-1">
+                        <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.3em] mb-1">Итого</div>
+                        <div className="text-2xl font-black font-mono text-white tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                           <FormattedPrice value={stats.totalValue} currency="" />
                         </div>
                       </div>
@@ -471,6 +472,7 @@ export default function DashboardPage() {
                 })()}
               </div>
 
+              {/* Refined Asset Categories List */}
               <div className="space-y-3">
                 {(() => {
                   const breakdown = allAssets.reduce((acc: Record<string, number>, a) => {
@@ -478,23 +480,25 @@ export default function DashboardPage() {
                     acc[t] = (acc[t] || 0) + (a.estimated_value || 0);
                     return acc;
                   }, {});
-                  const types = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 3);
+                  const sortedTypes = Object.keys(breakdown).sort((a, b) => (breakdown[b] || 0) - (breakdown[a] || 0)).slice(0, 3);
                   const typeColors: Record<string, string> = {
-                    software: 'bg-emerald-500',
-                    trademark: 'bg-blue-500',
-                    patent: 'bg-amber-500',
-                    copyright: 'bg-purple-500'
+                    software: '#10b981',
+                    trademark: '#3b82f6',
+                    patent: '#f59e0b',
+                    copyright: '#8b5cf6'
                   };
 
-                  return types.map(type => (
-                    <div key={type} className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 group-hover/stat:bg-white/10 transition">
+                  return sortedTypes.map(type => (
+                    <div key={type} className="flex items-center justify-between p-4 rounded-[1.5rem] bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.08] hover:border-white/10 transition-all duration-300 group/item">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${typeColors[type] || 'bg-slate-300'}`}></div>
-                        <span className="text-[10px] font-bold text-white/50 uppercase tracking-tighter truncate">
+                        <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)]" style={{ backgroundColor: typeColors[type] || '#fff' }}></div>
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest truncate group-hover/item:text-white/60 transition-colors">
                           {IP_TYPES_RU[type as IPType] || type}
                         </span>
                       </div>
-                      <div className="text-xs font-bold font-mono text-white flex-shrink-0"><FormattedPrice value={breakdown[type]} currency="₽" /></div>
+                      <div className="text-[11px] font-black font-mono text-white/80 group-hover/item:text-cyan-400 transition-colors">
+                        <FormattedPrice value={breakdown[type]} currency="₽" />
+                      </div>
                     </div>
                   ));
                 })()}

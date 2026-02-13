@@ -34,7 +34,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export default function PortfolioChart({ data }: PortfolioChartProps) {
     return (
-        <div className="w-full h-[300px]">
+        <div className="w-full h-full">
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
@@ -56,25 +56,6 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
                         ))}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend
-                        verticalAlign="bottom"
-                        height={36}
-                        content={({ payload }) => (
-                            <ul className="flex flex-wrap justify-center gap-4 mt-4">
-                                {payload?.map((entry: any, index: number) => (
-                                    <li key={`item-${index}`} className="flex items-center gap-2">
-                                        <span
-                                            className="w-2 h-2 rounded-full"
-                                            style={{ backgroundColor: entry.color }}
-                                        ></span>
-                                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">
-                                            {entry.value}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    />
                 </PieChart>
             </ResponsiveContainer>
         </div>
