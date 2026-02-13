@@ -26,6 +26,7 @@ export default function Landing() {
         <meta name="description" content="Профессиональная LegalTech платформа для аудита, мониторинга и финансовой оценки объектов интеллектуальной собственности с помощью ИИ." />
         <meta name="keywords" content="интеллектуальная собственность, оценка ИС, LegalTech, AI, патенты, товарные знаки" />
       </Head>
+
       {/* Hero Section Background */}
       <div className="absolute top-0 left-0 w-full h-[800px] overflow-hidden pointer-events-none sticky-background">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[70%] bg-cyan-500/10 rounded-full blur-[120px] animate-pulse"></div>
@@ -108,7 +109,80 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="relative animate-in zoom-in duration-1000 lg:-mt-40">
+          <div className="relative hidden lg:flex items-center justify-center overflow-hidden h-[600px]">
+            <div className="absolute w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="relative w-72 h-72 border border-white/5 rounded-[4rem] rotate-12 flex items-center justify-center backdrop-blur-3xl shadow-2xl animate-float">
+              <Shield className="w-24 h-24 text-cyan-400/20 -rotate-12" />
+            </div>
+            <div className="absolute top-20 right-10 w-40 h-40 border border-white/5 rounded-[3rem] -rotate-12 backdrop-blur-xl animate-pulse-slow"></div>
+            <div className="absolute bottom-20 left-20 w-32 h-32 border border-white/5 rounded-[2.5rem] rotate-[30deg] backdrop-blur-xl animate-float-delayed"></div>
+          </div>
+        </div>
+      </main>
+
+      {/* Features Grid */}
+      <section id="features" className="max-w-7xl mx-auto px-6 py-32 border-t border-white/5">
+        <div className="text-center mb-20 space-y-4">
+          <h2 className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.5em] flex items-center justify-center gap-4">
+            <span className="w-8 h-px bg-cyan-400/30"></span>
+            Функции платформы
+            <span className="w-8 h-px bg-cyan-400/30"></span>
+          </h2>
+          <p className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Всё для вашей ИС</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[
+            { h: "Центр управления", p: "Единый каталог всех ваших патентов, программ и брендов.", i: <Database className="w-8 h-8 text-cyan-400" />, color: "cyan" },
+            { h: "AI Оценка", p: "Умный калькулятор рыночной стоимости с генерацией отчетов.", i: <BarChart3 className="w-8 h-8 text-blue-400" />, color: "blue" },
+            { h: "Смарт-Контроль", p: "Умные уведомления о сроках продления и уплате пошлин.", i: <Clock className="w-8 h-8 text-emerald-400" />, color: "emerald" },
+            { h: "Автодокументы", p: "Генератор юридических документов по вашим шаблонам.", i: <FileCode2 className="w-8 h-8 text-rose-400" />, color: "rose" },
+          ].map((f, idx) => (
+            <div key={f.h} className="glass-card p-10 rounded-[3rem] border-white/5 group hover:border-white/20 transition-all hover:translate-y-[-12px] duration-500 relative overflow-hidden">
+              <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${f.color}-500/5 rounded-full blur-2xl group-hover:bg-${f.color}-500/10 transition-all text-sm`}></div>
+              <div className="mb-8 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">{f.i}</div>
+              <h3 className="text-lg font-black text-white uppercase tracking-tighter mb-4 flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
+                {f.h}
+                <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+              </h3>
+              <p className="text-sm text-white/40 leading-relaxed font-medium">{f.p}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Smart Operations & Counterparties */}
+      <section className="max-w-7xl mx-auto px-6 py-32 border-t border-white/5 bg-white/[0.01]">
+        <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="space-y-8 order-2 lg:order-1">
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none">
+              Умный реестр <br />
+              <span className="text-blue-400">контрагентов</span>
+            </h2>
+            <p className="text-lg text-white/40 font-medium leading-relaxed">
+              Централизованное управление данными ваших партнеров, лицензиатов и соавторов.
+              Система автоматически связывает документы с профилями компаний и отслеживает историю взаимодействий.
+            </p>
+            <div className="grid grid-cols-2 gap-6 pt-4">
+              <div className="glass-card p-8 rounded-[2rem] border-white/5">
+                <div className="text-3xl font-black text-white mb-2 underline decoration-cyan-500/50 decoration-4">500+</div>
+                <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Профилей компаний</div>
+              </div>
+              <div className="glass-card p-8 rounded-[2rem] border-white/5">
+                <div className="text-3xl font-black text-cyan-400 mb-2">AUTO</div>
+                <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Связь с реестрами</div>
+              </div>
+            </div>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 hover:text-white transition-colors group"
+            >
+              Узнать больше о контрагентах
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="relative order-1 lg:order-2 animate-in zoom-in duration-1000">
             <div className="glass-card p-4 rounded-[3.5rem] border-white/10 shadow-[0_0_100px_rgba(34,211,238,0.1)] overflow-hidden bg-white/5 backdrop-blur-3xl group">
               <div className="bg-[#0f172a]/80 rounded-[3rem] overflow-hidden border border-white/5 shadow-inner">
                 <div className="bg-white/5 px-6 py-4 flex items-center justify-between border-b border-white/5">
@@ -142,40 +216,8 @@ export default function Landing() {
               </div>
             </div>
             {/* Decors */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/20 rounded-full blur-[80px]"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-[80px]"></div>
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/20 rounded-full blur-[80px] -z-10"></div>
           </div>
-        </div>
-      </main>
-
-      {/* Features Grid */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-32 border-t border-white/5">
-        <div className="text-center mb-20 space-y-4">
-          <h2 className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.5em] flex items-center justify-center gap-4">
-            <span className="w-8 h-px bg-cyan-400/30"></span>
-            Функции платформы
-            <span className="w-8 h-px bg-cyan-400/30"></span>
-          </h2>
-          <p className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Всё для вашей ИС</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { h: "Центр управления", p: "Единый каталог всех ваших патентов, программ и брендов.", i: <Database className="w-8 h-8 text-cyan-400" />, color: "cyan" },
-            { h: "AI Оценка", p: "Умный калькулятор рыночной стоимости с генерацией отчетов.", i: <BarChart3 className="w-8 h-8 text-blue-400" />, color: "blue" },
-            { h: "Смарт-Контроль", p: "Умные уведомления о сроках продления и уплате пошлин.", i: <Clock className="w-8 h-8 text-emerald-400" />, color: "emerald" },
-            { h: "Автодокументы", p: "Генератор юридических документов по вашим шаблонам.", i: <FileCode2 className="w-8 h-8 text-rose-400" />, color: "rose" },
-          ].map((f, idx) => (
-            <div key={f.h} className="glass-card p-10 rounded-[3rem] border-white/5 group hover:border-white/20 transition-all hover:translate-y-[-12px] duration-500 relative overflow-hidden">
-              <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${f.color}-500/5 rounded-full blur-2xl group-hover:bg-${f.color}-500/10 transition-all text-sm`}></div>
-              <div className="mb-8 transform group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">{f.i}</div>
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter mb-4 flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
-                {f.h}
-                <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-              </h3>
-              <p className="text-sm text-white/40 leading-relaxed font-medium">{f.p}</p>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -277,9 +319,12 @@ export default function Landing() {
 
       <footer className="py-20 border-t border-white/5 relative bg-[#01040f]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-4">
+          <div className="items-center gap-4 flex leading-none">
             <Shield className="w-8 h-8 text-cyan-400" />
-            <div className="text-2xl font-black text-white uppercase tracking-tighter">VKR IP</div>
+            <div className="flex flex-col">
+              <div className="text-2xl font-black text-white uppercase tracking-tighter">VKR IP</div>
+              <div className="text-[8px] font-bold text-white/20 tracking-[0.4em] uppercase">Intelligence Platform</div>
+            </div>
           </div>
           <div className="flex gap-10">
             {['Правовая информация', 'Приватность', 'Условия'].map(l => (
@@ -292,6 +337,26 @@ export default function Landing() {
         </div>
       </footer>
       <KBAgentFox />
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(12deg); }
+          50% { transform: translateY(-20px) rotate(15deg); }
+        }
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0) rotate(30deg); }
+          50% { transform: translateY(20px) rotate(25deg); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+          animation: float-delayed 8s ease-in-out infinite;
+        }
+        .animate-pulse-slow {
+          animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+      `}</style>
     </div>
   );
 }
