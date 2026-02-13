@@ -337,46 +337,49 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* 3-Column Operations Row */}
+            {/* 2-Column Operations Row */}
             <div className="grid grid-cols-12 gap-8 items-stretch">
               {/* Column 1: Counterparties */}
-              <div className="col-span-12 lg:col-span-6 xl:col-span-4 space-y-6">
+              <div className="col-span-12 xl:col-span-8 space-y-6">
                 <div className="flex justify-between items-center px-4">
-                  <h3 className="text-sm font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                  <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
                     Контрагенты
                   </h3>
-                  <Link href="/counterparties" className="text-[9px] font-black text-emerald-400 hover:text-white transition uppercase tracking-widest">Все</Link>
+                  <Link href="/counterparties" className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-4 py-2 rounded-xl border border-emerald-400/20 hover:bg-emerald-400/20 transition uppercase tracking-widest">Все партнеры</Link>
                 </div>
 
-                <div className="space-y-4">
-                  {partnerList.slice(0, 3).map((p, i) => (
-                    <div key={p.id} className="glass-card hover:bg-white/10 transition-all p-4 rounded-2xl border-white/5 flex items-center gap-4 group">
-                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white font-black text-xs bg-gradient-to-br ${['from-cyan-500 to-blue-600', 'from-purple-500 to-pink-600', 'from-orange-500 to-rose-600'][i % 3]
-                        } border border-white/10`}>
-                        {p.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 overflow-hidden">
-                        <div className="text-[11px] font-bold text-white truncate group-hover:text-cyan-400 transition-colors uppercase">{p.name}</div>
-                        <div className="text-[9px] font-bold text-white/20 truncate uppercase tracking-widest">{p.contact_person || "Партнер"}</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {partnerList.slice(0, 4).map((p, i) => (
+                    <div key={p.id} className="glass-card hover:bg-white/10 transition-all p-6 rounded-[2rem] border-white/5 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-[20px] -mr-12 -mt-12 transition group-hover:bg-cyan-500/10"></div>
+                      <div className="flex items-center gap-4">
+                        <div className={`w-14 h-14 rounded-[1.25rem] flex-shrink-0 flex items-center justify-center text-white font-black text-lg bg-gradient-to-br ${['from-cyan-500 to-blue-600', 'from-purple-500 to-pink-600', 'from-orange-500 to-rose-600', 'from-emerald-500 to-teal-600'][i % 4]
+                          } shadow-lg border border-white/20 transition-transform group-hover:scale-105 duration-500`}>
+                          {p.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                          <div className="text-sm font-bold text-white mb-0.5 uppercase tracking-tight group-hover:text-cyan-400 transition-colors truncate">{p.name}</div>
+                          <div className="text-[9px] font-bold text-white/30 truncate uppercase tracking-widest">{p.contact_person || "Контрагент"}</div>
+                        </div>
                       </div>
                     </div>
                   ))}
                   {partnerList.length === 0 && (
-                    <div className="p-10 text-center border border-dashed border-white/10 rounded-2xl text-[10px] text-white/20 font-bold uppercase">Нет данных</div>
+                    <div className="p-10 text-center border border-dashed border-white/10 rounded-2xl text-[10px] text-white/20 font-bold uppercase col-span-full">Список пуст</div>
                   )}
                 </div>
               </div>
 
               {/* Column 2: Document Management */}
-              <div className="col-span-12 lg:col-span-6 xl:col-span-4">
+              <div className="col-span-12 xl:col-span-4">
                 <div className="glass-card rounded-[2.5rem] p-8 border-white/5 relative overflow-hidden group h-full flex flex-col justify-between">
                   <div className="absolute bottom-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-[40px] -mr-16 -mb-16"></div>
 
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
                       <span className="w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(251,146,60,0.8)]"></span>
-                      Документы
+                      Документооборот
                     </h3>
                   </div>
 
@@ -391,7 +394,7 @@ export default function DashboardPage() {
                         className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all flex flex-col items-center gap-3 group/btn"
                       >
                         <item.icon className="w-6 h-6 text-white/20 group-hover/btn:text-white transition-all transform group-hover/btn:scale-110" />
-                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
+                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{item.label}</span>
                       </button>
                     ))}
                   </div>
@@ -401,59 +404,8 @@ export default function DashboardPage() {
                     className="w-full glass-button-primary !py-4 shadow-[0_20px_40px_rgba(34,211,238,0.25)] flex items-center justify-center gap-3"
                   >
                     <Plus className="w-4 h-4" />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Создать документ</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Создать документ</span>
                   </button>
-                </div>
-              </div>
-
-              {/* Column 3: AI Intelligence Hub (Filling the gap) */}
-              <div className="col-span-12 lg:col-span-12 xl:col-span-4">
-                <div className="glass-card rounded-[2.5rem] p-8 border-white/5 relative overflow-hidden h-full flex flex-col">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-[40px] -mr-16 -mt-16"></div>
-
-                  <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                      <span className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
-                      AI Мониторинг
-                    </h3>
-                    <div className="px-2 py-0.5 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-[8px] font-black text-cyan-400 uppercase tracking-widest animate-pulse">Live</div>
-                  </div>
-
-                  <div className="flex-1 space-y-5">
-                    <div className="flex items-center gap-4 group">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
-                        <Search className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-cyan-400 w-3/4 animate-pulse"></div>
-                        </div>
-                        <div className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-2">Анализ баз Роспатента</div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Угроз ИС</span>
-                        <span className="text-xs font-black text-emerald-400">0</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Упоминаний бренда</span>
-                        <span className="text-xs font-black text-white group-hover:text-cyan-400">12</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t border-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white p-1">
-                        <span className="text-[10px]">🦊</span>
-                      </div>
-                      <p className="text-[10px] font-bold text-white/40 leading-tight">
-                        <span className="text-white/80">Fox AI:</span> Все системы работают в штатном режиме.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
