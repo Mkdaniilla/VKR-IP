@@ -401,9 +401,10 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
 
     res_data = [
         ["Показатель", "Значение"],
-        ["Базовая финансовая модель (DCF)", fmt_curr(results['baseline_value'])],
-        ["Ставка дисконтирования (RADR)", pro_factors.get("discount_rate", "12%")],
+        ["Базовая финансовая модель (DCF/Cost)", fmt_curr(results['baseline_value'])],
+        ["Ставка дисконтирования (WACC)", pro_factors.get("discount_rate", "18%")],
         ["Ставка роялти (Relief rate)", pro_factors.get("royalty_rate", "5%")],
+        ["Затраты на воспроизводство (R&D)", fmt_curr(payload.get('cost_rd', 0))],
         ["ИТОГОВАЯ (РЕКОМЕНДУЕМАЯ) СТОИМОСТЬ", fmt_curr(results['final_value'])],
     ]
     
@@ -411,17 +412,47 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     t2.setStyle(TableStyle([
         ('FONTNAME', (0,0), (-1,-1), FONT),
         ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0f172a")), # Dark header
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0f172a")),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('ALIGN', (0,0), (-1,0), 'CENTER'),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e2e8f0")),
-        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#f0fdf4")), # Emerald-50
-        ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor("#15803d")), # Emerald-700
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#f0fdf4")),
+        ('TEXTCOLOR', (0,-1), (-1,-1), colors.HexColor("#15803d")),
         ('FONTSIZE', (0,-1), (-1,-1), 12),
         ('PADDING', (0,0), (-1,-1), 8),
     ]))
     content.append(t2)
-    content.append(Spacer(1, 10))
+    content.append(Spacer(1, 15))
+
+    # --- 2a. Factor Impact Analysis ---
+    factors = results.get("factors_breakdown", [])
+    if factors:
+        content.append(Paragraph("Детализация влияния факторов (Factor Analysis):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=8)))
+        f_data = [["Фактор", "Влияние", "Значение / Множитель"]]
+        for f in factors:
+            impact_val = f.get('impact', 1.0)
+            if f.get('type') == 'percentage':
+                display_impact = f"{'+' if impact_val > 0 else ''}{impact_val}%"
+            else:
+                display_impact = f"x {impact_val}"
+            
+            f_data.append([
+                f.get('icon', '') + " " + f.get('name', ''),
+                display_impact,
+                "Учтено в модели"
+            ])
+            
+        tf = Table(f_data, colWidths=[70*mm, 40*mm, 60*mm])
+        tf.setStyle(TableStyle([
+            ('FONTNAME', (0,0), (-1,-1), FONT),
+            ('FONTSIZE', (0,0), (-1,-1), 9),
+            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#cbd5e1")),
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
+            ('ALIGN', (1,1), (1,-1), 'CENTER'),
+            ('PADDING', (0,0), (-1,-1), 5),
+        ]))
+        content.append(tf)
+        content.append(Spacer(1, 15))
 
     # --- 2b. Evidence Base ---
     evidence = results.get("evidence_logs", [])

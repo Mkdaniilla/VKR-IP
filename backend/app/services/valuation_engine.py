@@ -8,29 +8,42 @@ from typing import Dict, Any, Tuple
 logger = logging.getLogger(__name__)
 
 # === Профессиональные отраслевые ставки роялти (Industry Benchmarks) ===
+# Источники: RoyaltyStat, MARKABLES, экспертные оценки
 INDUSTRY_ROYALTY_RATES = {
-    "it": (0.05, 0.12),
-    "pharma": (0.08, 0.15),
-    "manufacturing": (0.04, 0.08),
-    "retail": (0.02, 0.05),
-    "services": (0.03, 0.07),
-    "media": (0.10, 0.25),
+    "it": (0.05, 0.15),        # Программное обеспечение, SaaS
+    "pharma": (0.10, 0.25),     # Патенты на лекарственные средства
+    "manufacturing": (0.03, 0.08),# Технологии производства
+    "retail": (0.01, 0.04),     # Товарные знаки в ритейле
+    "services": (0.02, 0.06),   # Консалтинг, франшизы
+    "media": (0.15, 0.35),      # Контент, музыка, кино
+    "fashion": (0.05, 0.12),    # Бренды одежды
+    "fintech": (0.07, 0.18),    # Финансовые алгоритмы
 }
 
 # === ЮРИДИЧЕСКИЕ ФАКТОРЫ 2.0 (Legal Weighting) ===
 LEGAL_FACTORS = {
-    "defense": 0.20,      # Прецеденты успешной защиты в суде (высокая ликвидность)
+    "registered": 0.25,   # Наличие патента/регистрации (базовая защита)
+    "defense": 0.30,      # Прецеденты успешной защиты в суде (высокая ликвидность)
     "examination": 0.15,  # Гос. экспертиза (снижает риск аннулирования)
     "maintenance": 0.10,  # Регулярное продление (подтверждает интерес владельца)
-    "international": 0.15 # PCT/WIPO (возможность экспансии)
+    "international": 0.20 # PCT/WIPO (возможность экспансии)
 }
 
-def calculate_discount_rate(risk_pct: float) -> float:
+def calculate_discount_rate(risk_pct: float, industry: str = "it") -> float:
     """
     Рассчитывает ставку дисконтирования на основе базовой ставки и риска.
     WACC (базово) + IP Risk Premium.
     """
-    base_rate = 0.12 # Средняя ставка для НМА в РФ/СНГ
+    # Базовая ставка для РФ (Ключевая ставка + премия за риск рынка)
+    base_rates = {
+        "it": 0.18,
+        "pharma": 0.15,
+        "manufacturing": 0.20,
+        "retail": 0.16,
+        "services": 0.17,
+        "media": 0.22,
+    }
+    base_rate = base_rates.get(industry, 0.18)
     return base_rate + risk_pct
 
 def calculate_dcf(annual_benefit: float, years: int, discount_rate: float) -> float:
@@ -49,18 +62,18 @@ def calculate_subtype_metrics_factor(metrics: dict) -> float:
     if not vals:
         return 1.0
     avg = sum(vals) / len(vals)
-    # Диапазон 1-10 -> множитель 0.7 - 1.3
-    return 0.7 + (avg / 10.0) * 0.6
+    # Диапазон 1-10 -> множитель 0.6 - 1.5 (более агрессивно выделяем лидерство)
+    return 0.6 + (avg / 10.0) * 0.9
 
-MARKET_REACH_FACTOR = {"local": 0.8, "region": 0.95, "national": 1.0, "international": 1.25}
-JURISDICTION_FACTOR = lambda n: 1.0 + min(0.6, 0.08 * max(0, n - 1))
-BRAND_STRENGTH_FACTOR = lambda s: 0.5 + (s * 0.1) # 1=0.6, 10=1.5
+MARKET_REACH_FACTOR = {"local": 0.7, "region": 0.9, "national": 1.1, "international": 1.5}
+JURISDICTION_FACTOR = lambda n: 1.0 + min(1.0, 0.15 * max(0, n - 1))
+BRAND_STRENGTH_FACTOR = lambda s: 0.4 + (s * 0.12) # 1=0.52, 10=1.6
 
 VALUATION_PURPOSE_MULTIPLIER = {
     "market": 1.0,
-    "liquidation": 0.5, # Глубокий дисконт для срочной продажи
-    "investment": 1.15,
-    "accounting": 0.9
+    "liquidation": 0.4, # Глубокий дисконт для срочной продажи
+    "investment": 1.25,
+    "accounting": 0.85
 }
 
 # === ПОДКЛЮЧАЕМ локальный ИИ ===
@@ -72,24 +85,24 @@ async def ai_consultant_hint(ai_client, payload: dict) -> Dict[str, Any]:
     
     valuation_task = """
     "valuation_analysis": {
-        "risk_discount_pct": float (0.1 to 0.4),
-        "bullets": [строки с анализом юридических рисков],
-        "methodology_summary": "Описание применения метода дисконтированных потоков (DCF)"
+        "risk_discount_pct": float (0.05 to 0.45),
+        "bullets": [строки с анализом юридических рисков и рыночных барьеров],
+        "methodology_summary": "Описание применения метода Relief from Royalty и DCF"
     }
     """
-    # ... Rest of AI prompt logic ...
     prompt = f"""
-    Ты — ведущий эксперт по оценке ИС. Проведи анализ для {payload.get('ip_type')} ({payload.get('subtype')}).
+    Ты — ведущий эксперт по оценке ИС (IVS 2024). Проведи глубокий анализ для {payload.get('ip_type')} ({payload.get('subtype')}).
+    Оцени специфические риски актива: юридическую защищенность, рыночные барьеры, зависимость от команды.
     Используй профессиональную терминологию (NPV, WACC, Royalty Relief).
-    Входящие: {json.dumps(payload, ensure_ascii=False)}
+    Входящие данные: {json.dumps(payload, ensure_ascii=False)}
     
     Верни строго JSON:
     {{
         {valuation_task},
         "strategic_recommendations": [
             {{ "icon": "🚀", "text": "Трендовый совет по монетизации" }},
-            {{ "icon": "🛡️", "text": "Юридический совет по дедлайнам и защите" }},
-            {{ "icon": "💰", "text": "Совет по росту капитализации" }}
+            {{ "icon": "🛡️", "text": "Юридический совет по ГК РФ и защите" }},
+            {{ "icon": "💰", "text": "Совет по минимизации рисков (WACC)" }}
         ]
     }}
     """
@@ -115,25 +128,30 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
     # 2. Определение ставки роялти (Benchmark vs Input)
     bench_low, bench_high = INDUSTRY_ROYALTY_RATES.get(industry, (0.03, 0.08))
     if royalty_rate == 0:
-        royalty_rate = (bench_low + bench_high) / 2.0
+        # Умный выбор ставки внутри бенчмарка на основе силы бренда
+        brand_score = int(inputs.get("brand_strength", 5))
+        royalty_rate = bench_low + (bench_high - bench_low) * (brand_score / 10.0)
     
     # 3. ДОХОДНЫЙ МЕТОД (Professional DCF)
     # Метод освобождения от роялти (Relief from Royalty)
     annual_benefit = revenue * royalty_rate
-    discount_rate = calculate_discount_rate(risk_pct)
+    discount_rate = calculate_discount_rate(risk_pct, industry)
     
     income_val = calculate_dcf(annual_benefit, years, discount_rate)
     
     # 4. ЗАТРАТНЫЙ МЕТОД (Cost-based)
-    # Учитываем воспроизводство и предпринимательскую прибыль
-    cost_val = cost_rd * 1.4
+    # Учитываем воспроизводство и предпринимательскую прибыль (Entrepreneurial Profit)
+    cost_val = cost_rd * 1.6
     
-    # 5. СИНТЕЗ (Смешивание методов)
-    if revenue > 0:
-        # Если есть выручка, доходный метод - основной (85%)
-        baseline = (income_val * 0.85) + (cost_val * 0.15)
+    # 5. СИНТЕЗ (Смешивание методов в зависимости от стадии жизни актива)
+    if revenue > 1000000:
+        # Зрелый актив: основной уклон на доход (90%)
+        baseline = (income_val * 0.9) + (cost_val * 0.1)
+    elif revenue > 0:
+        # Ранняя коммерциализация (70/30)
+        baseline = (income_val * 0.7) + (cost_val * 0.3)
     elif cost_rd > 0:
-        # Если проект на стадии R&D
+        # Стадия разработки
         baseline = cost_val
     else:
         baseline = float(val_analysis.get("market_value_estimate", 0))
