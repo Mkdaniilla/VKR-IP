@@ -390,14 +390,19 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     
     pro_factors = results.get("multiples_used", {}).get("pro_factors", {})
     
+    # Range visualization (Min - Max)
+    val_min = results.get('final_value_min', results['final_value'] * 0.9)
+    val_max = results.get('final_value_max', results['final_value'] * 1.1)
+    
+    range_text = f"Динамический диапазон стоимости: <b>{fmt_curr(val_min)} — {fmt_curr(val_max)}</b>"
+    content.append(Paragraph(range_text, ParagraphStyle('RangeStyle', parent=styles['BodyCyr'], alignment=1, fontSize=12, spaceAfter=15, textColor=colors.HexColor("#0369a1"))))
+
     res_data = [
         ["Показатель", "Значение"],
         ["Базовая финансовая модель (DCF)", fmt_curr(results['baseline_value'])],
         ["Ставка дисконтирования (RADR)", pro_factors.get("discount_rate", "12%")],
-        ["Ставка роялти (Industry Benchmark)", pro_factors.get("royalty_rate", "5%")],
-        ["Юридический рычаг (Legal Robustness)", pro_factors.get("legal_weight", "0%")],
-        ["Корректировка стоимости", fmt_curr(results['ai_adjustment'])],
-        ["ИТОГОВАЯ СТОИМОСТЬ АКТИВА", fmt_curr(results['final_value'])],
+        ["Ставка роялти (Relief rate)", pro_factors.get("royalty_rate", "5%")],
+        ["ИТОГОВАЯ (РЕКОМЕНДУЕМАЯ) СТОИМОСТЬ", fmt_curr(results['final_value'])],
     ]
     
     t2 = Table(res_data, colWidths=[110*mm, 60*mm])
@@ -414,7 +419,33 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         ('PADDING', (0,0), (-1,-1), 8),
     ]))
     content.append(t2)
-    content.append(Spacer(1, 15))
+    content.append(Spacer(1, 10))
+
+    # --- 2b. Evidence Base ---
+    evidence = results.get("evidence_logs", [])
+    if evidence:
+        content.append(Paragraph("Журнал доказательств (Audit Trail):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=5)))
+        evidence_data = [["Фактор / Группа", "Значение / Доказательство", "Статус"]]
+        for e in evidence:
+            status_icon = "V" if e.get('status') == 'confirmed' else "?"
+            evidence_data.append([
+                Paragraph(e.get('factor', 'Фактор'), styles["BodyCyr"]),
+                Paragraph(f"{e.get('value', '')} ({e.get('source', '')})", styles["BodyCyr"]),
+                status_icon
+            ])
+        
+        te = Table(evidence_data, colWidths=[50*mm, 100*mm, 20*mm])
+        te.setStyle(TableStyle([
+            ('FONTNAME', (0,0), (-1,-1), FONT),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#cbd5e1")),
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
+            ('ALIGN', (2,0), (2,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('PADDING', (0,0), (-1,-1), 4),
+        ]))
+        content.append(te)
+        content.append(Spacer(1, 15))
 
     # --- Explanation Block ---
     content.append(Paragraph("Методологические пояснения:", styles["BodyCyr"]))
@@ -428,9 +459,9 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     )
     
     explanations = [
-        f"<b>• Модель DCF:</b> Оценка основана на методе дисконтированных денежных потоков. Мы дисконтируем будущие выгоды к текущему моменту по ставке {pro_factors.get('discount_rate')}.",
-        f"<b>• Ставка роялти:</b> Применена ставка {pro_factors.get('royalty_rate')}, соответствующая рыночным индикаторам для отрасли {INDUSTRY_MAP.get(payload.get('industry', 'it'))}.",
-        "<b>• Юридический рычаг:</b> Коэффициент, отражающий качество правовой защиты. Наличие судов, экспертиз и международных регистраций кратно повышает ликвидность актива."
+        f"<b>• Модель DCF:</b> Оценка основана на методе дисконтированных денежных потоков по ставке {pro_factors.get('discount_rate')}.",
+        f"<b>• Доказательная база:</b> Стоимость скорректирована на основе верифицированных фактов из интервью и документов.",
+        "<b>• Диапазон стоимости:</b> Отражает уверенность ИИ в предоставленных данных. Большее количество доказательств сужает диапазон."
     ]
     
     for explanation in explanations:

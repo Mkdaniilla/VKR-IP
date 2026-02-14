@@ -143,11 +143,31 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
 
     # 6. ПРИМЕНЕНИЕ КОЭФФИЦИЕНТОВ IP
     final = baseline
+    
+    # Модификация на основе интервью (уверенность ИИ)
+    interview_bonus = 1.0
+    evidence_extracted = []
+    
+    for resp in inputs.get("interview_responses", []):
+        # Если ответ позитивный и подтвержден (упрощенная логика для прототипа)
+        if resp.get("status") == "confirmed":
+            interview_bonus += 0.02 # +2% за каждый подтвержденный факт
+            evidence_extracted.append({
+                "factor": resp.get("question_group", "Общий фактор"),
+                "value": resp.get("value"),
+                "source": resp.get("evidence_source", "Интервью"),
+                "status": "confirmed"
+            })
+
+    # Добавляем внешние логи доказательств
+    evidence_extracted.extend(inputs.get("evidence_logs", []))
+
     # Юридическая сила
     legal_factor = 1.0
     for key in inputs.get("legal_robustness", []):
         legal_factor += LEGAL_FACTORS.get(key, 0)
     final *= legal_factor
+    final *= interview_bonus
     
     # Рыночные факторы
     final *= MARKET_REACH_FACTOR.get(inputs.get("market_reach"), 1.0)
@@ -158,17 +178,37 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
 
     # Итоговый дисконт на риск (уже заложен в DCF частично, но здесь финальный Clamp)
     final_value = round(final, 2)
+    
+    # Расчет диапазона (Evidence-based confidence)
+    # Если доказательств мало - диапазон шире
+    confidence_spread = 0.15 - (len(evidence_extracted) * 0.01)
+    confidence_spread = max(0.05, confidence_spread)
+    
+    final_min = round(final_value * (1 - confidence_spread), 2)
+    final_max = round(final_value * (1 + confidence_spread), 2)
 
     return {
         "baseline_value": round(float(baseline), 2),
         "ai_adjustment": round(float(final_value - baseline), 2),
         "final_value": final_value,
+        "final_value_min": final_min,
+        "final_value_max": final_max,
         "risk_discount": round(risk_pct * 100, 2),
         "discount_rate_used": round(discount_rate * 100, 2),
+        "evidence_logs": evidence_extracted,
+        "factors_breakdown": [
+            {"name": "Юридическая чистота", "impact": round((legal_factor - 1) * 100, 1), "type": "percentage", "icon": "⚖️"},
+            {"name": "Подтвержденные факты", "impact": round((interview_bonus - 1) * 100, 1), "type": "percentage", "icon": "✅"},
+            {"name": "Рыночный охват", "impact": MARKET_REACH_FACTOR.get(inputs.get("market_reach"), 1.0), "type": "multiplier", "icon": "🌍"},
+            {"name": "Юрисдикции", "impact": round(JURISDICTION_FACTOR(len(inputs.get("jurisdictions", ["RU"]))), 2), "type": "multiplier", "icon": "🏳️"},
+            {"name": "Сила бренда", "impact": round(BRAND_STRENGTH_FACTOR(int(inputs.get("brand_strength", 5))), 2), "type": "multiplier", "icon": "💎"},
+            {"name": "Специфические метрики", "impact": round(calculate_subtype_metrics_factor(inputs.get("subtype_metrics", {})), 2), "type": "multiplier", "icon": "📊"},
+            {"name": "Цель оценки", "impact": VALUATION_PURPOSE_MULTIPLIER.get(inputs.get("valuation_purpose", "market"), 1.0), "type": "multiplier", "icon": "🎯"}
+        ],
         "multiples_used": {
             "ai_bullets": val_analysis.get("bullets", []),
             "strategic_recommendations": ai_hint.get("strategic_recommendations", []),
-            "methodology": "Метод освобождения от роялти (Relief from Royalty) с применением дисконтирования денежных потоков (DCF).",
+            "methodology": "Метод освобождения от роялти (Relief from Royalty) с применением дисконтирования денежных потоков (DCF). Проведен анализ доказательной базы через AI-интервью.",
             "pro_factors": {
                 "discount_rate": f"{round(discount_rate*100, 1)}%",
                 "royalty_rate": f"{round(royalty_rate*100, 1)}%",
@@ -176,3 +216,5 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
             }
         },
     }
+
+

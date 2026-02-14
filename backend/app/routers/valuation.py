@@ -101,6 +101,14 @@ async def estimate_and_create(
         logger.error(f"Error creating valuation: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Ошибка при создании оценки: {str(e)}")
 
+@router.get("/interview/scenario/{ip_type}")
+async def get_interview_scenario(
+    ip_type: str,
+    current_user: models.user.User = Depends(get_current_user),
+):
+    from app.services.local_ai import get_ai_interviewer_scenario
+    return get_ai_interviewer_scenario(ip_type)
+
 @router.get("/report/{filename}")
 def view_report_pdf(
     filename: str,

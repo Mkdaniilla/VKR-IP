@@ -19,7 +19,8 @@ import {
 
 import AssetHealthRadar from "../../components/AssetHealthRadar";
 import WaterfallChart from "../../components/WaterfallChart";
-import { AlertTriangle, Zap, Download, ChevronRight } from "lucide-react";
+import ValuationChat from "../../components/ValuationChat";
+import { AlertTriangle, Zap, Download, ChevronRight, Scale, ShieldCheck } from "lucide-react";
 
 const API_URL = getApiUrl();
 
@@ -29,8 +30,12 @@ type ValuationResponse = {
   baseline_value: number;
   ai_adjustment: number;
   final_value: number;
+  final_value_min?: number;
+  final_value_max?: number;
   currency: string;
   risk_discount: number;
+  factors_breakdown?: { name: string; impact: number; type: 'percentage' | 'multiplier'; icon: string }[];
+  evidence_logs?: { factor: string; value: string; source: string; status: string }[];
   multiples_used: {
     ai_bullets: string[];
     strategic_recommendations: { icon: string; text: string }[];
@@ -175,7 +180,11 @@ export default function ValuationPage() {
     valuation_purpose: "market",
     subtype: "",
     subtype_metrics: {},
+    interview_responses: [],
   });
+
+  const [showChat, setShowChat] = useState(false);
+  const [interviewFinished, setInterviewFinished] = useState(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -229,10 +238,22 @@ export default function ValuationPage() {
 
     // Специфические метрики подтипов (1-10)
     const metricsImpact = Object.values(form.subtype_metrics).reduce((sum: number, val: number) => sum + (Number(val) - 5), 0);
-    const multiplier = 1 + (metricsImpact * 0.05);
+    let multiplier = 1 + (metricsImpact * 0.05);
+
+    // Добавляем юридическую силу в превью (упрощенно)
+    const legalWeight = form.legal_robustness.length * 0.15;
+    multiplier += legalWeight;
+
+    const purposeMultipliers: Record<string, number> = {
+      market: 1.0,
+      liquidation: 0.5,
+      investment: 1.15,
+      accounting: 0.9
+    };
+    multiplier *= purposeMultipliers[form.valuation_purpose] || 1.0;
 
     return base * (multiplier > 0.1 ? multiplier : 0.1);
-  }, [form.annual_revenue, form.royalty_rate, form.remaining_years, form.cost_rd, form.subtype_metrics]);
+  }, [form.annual_revenue, form.royalty_rate, form.remaining_years, form.cost_rd, form.subtype_metrics, form.legal_robustness, form.valuation_purpose]);
 
   const bind = (k: keyof ValuationPayload, v: any) => {
     setForm((p) => ({ ...p, [k]: v }));
@@ -412,6 +433,32 @@ export default function ValuationPage() {
                     ]}
                   />
                 </div>
+                <div className="md:col-span-2 space-y-4 pt-6 border-t border-white/5">
+                  <label className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                    Цель проведения оценки <Tooltip text="Влияет на итоговую стоимость (например, ликвидационная стоимость предполагает дисконт 50%)." />
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { id: "market", label: "Рыночная", icon: "⚖️" },
+                      { id: "investment", label: "Инвестиции", icon: "🚀" },
+                      { id: "liquidation", label: "Ликвидация", icon: "📉" },
+                      { id: "accounting", label: "Учет (МСФО)", icon: "📋" }
+                    ].map(purpose => (
+                      <button
+                        key={purpose.id}
+                        type="button"
+                        onClick={() => bind("valuation_purpose", purpose.id)}
+                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${form.valuation_purpose === purpose.id
+                          ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400"
+                          : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
+                          }`}
+                      >
+                        <span className="text-xl mb-1">{purpose.icon}</span>
+                        <span className="text-[10px] font-black uppercase tracking-tighter">{purpose.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -510,6 +557,42 @@ export default function ValuationPage() {
                 <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed mb-8">
                   Я проанализирую параметры и сформирую отчет по международным стандартам оценки IVSC.
                 </p>
+
+                {/* Interview Action */}
+                {!interviewFinished ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowChat(!showChat)}
+                    className="w-full py-4 mb-4 rounded-2xl border border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-white/10 transition-all flex items-center justify-center gap-3"
+                  >
+                    <Scale className="w-4 h-4 text-cyan-400" />
+                    {showChat ? 'Свернуть интервью' : 'Пройти интервью (Evidence-Based)'}
+                  </button>
+                ) : (
+                  <div className="w-full py-4 mb-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center justify-center gap-3 animate-in zoom-in-95">
+                    <ShieldCheck className="w-4 h-4" />
+                    Интервью завершено (+15% доверия)
+                  </div>
+                )}
+
+                {showChat && (
+                  <div className="w-full mb-8">
+                    <ValuationChat
+                      ipType={form.ip_type}
+                      onConfirmFact={(fact) => {
+                        setForm(p => ({
+                          ...p,
+                          interview_responses: [...p.interview_responses, fact]
+                        }));
+                      }}
+                      onFinish={() => {
+                        setInterviewFinished(true);
+                        setTimeout(() => setShowChat(false), 2000);
+                      }}
+                    />
+                  </div>
+                )}
+
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
@@ -539,15 +622,24 @@ export default function ValuationPage() {
             {res && (
               <div className="glass-card p-8 rounded-[2.5rem] border border-cyan-500/30 bg-cyan-500/5 animate-in zoom-in-95 duration-700 relative overflow-visible group">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="flex items-center justify-between mb-2 relative z-10">
-                  <p className="text-4xl font-black text-white tracking-tighter">
-                    <FormattedPrice value={res.final_value} currency={res.currency} />
-                  </p>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">RADR (Risk)</span>
-                    <span className="text-sm font-black text-rose-400">{res.risk_discount.toFixed(1)}%</span>
+                <div className="flex flex-col mb-6 relative z-10">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-4xl font-black text-white tracking-tighter">
+                      <FormattedPrice value={res.final_value} currency={res.currency} />
+                    </p>
+                    <div className="flex flex-col items-end">
+                      <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Confidence Score</span>
+                      <span className="text-sm font-black text-cyan-400">{((res.evidence_logs?.length || 0) * 10 + 70)}%</span>
+                    </div>
                   </div>
+
+                  {res.final_value_min && res.final_value_max && (
+                    <div className="text-[10px] font-black text-white/40 uppercase tracking-widest border-t border-white/5 pt-2">
+                      Диапазон: <span className="text-white/60"><FormattedPrice value={res.final_value_min} currency={res.currency} /> — <FormattedPrice value={res.final_value_max} currency={res.currency} /></span>
+                    </div>
+                  )}
                 </div>
+
                 <WaterfallChart
                   baseline={res.baseline_value}
                   adjustment={res.ai_adjustment}
@@ -579,6 +671,23 @@ export default function ValuationPage() {
               <p className="text-sm text-white/50 italic my-8 leading-relaxed bg-white/5 p-6 rounded-[1.5rem] border border-white/5 font-medium">
                 "{res.multiples_used.methodology}"
               </p>
+
+              {res.factors_breakdown && (
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  {res.factors_breakdown.map((f, i) => (
+                    <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-2xl group hover:border-cyan-500/20 transition-all">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{f.icon}</span>
+                        <span className="text-[9px] font-black text-white/30 uppercase tracking-widest truncate">{f.name}</span>
+                      </div>
+                      <div className={`text-sm font-black ${f.impact === 1 || f.impact === 0 ? 'text-white/40' : f.impact > 1 || (f.type === 'percentage' && f.impact > 0) ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {f.type === 'multiplier' ? `x${f.impact}` : `${f.impact > 0 ? '+' : ''}${f.impact}%`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <ul className="space-y-4">
                 {res.multiples_used.ai_bullets.map((b, i) => (
                   <li key={i} className="flex gap-4 text-sm text-white/70">

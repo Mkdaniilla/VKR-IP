@@ -34,17 +34,24 @@ class ValuationCreate(BaseModel):
     ip_object_id: Optional[int] = None
     
     # Subtype and specific metrics
+    # Interview and Evidence
     subtype: str = ""
     subtype_metrics: Dict[str, float] = {}
+    interview_responses: List[Dict[str, Any]] = []
+    evidence_logs: List[Dict[str, Any]] = []
 
 class ValuationOut(BaseModel):
     id: int
     baseline_value: float
     ai_adjustment: float
     final_value: float
+    final_value_min: Optional[float] = None
+    final_value_max: Optional[float] = None
     currency: str
     risk_discount: Optional[float]
+    factors_breakdown: Optional[List[Dict[str, Any]]] = None
     multiples_used: Dict[str, Any]
+    evidence_logs: Optional[List[Dict[str, Any]]] = None
     pdf_url: str
     ip_object: Optional[IPObjectOut] = None
     model_config = ConfigDict(from_attributes=True)
