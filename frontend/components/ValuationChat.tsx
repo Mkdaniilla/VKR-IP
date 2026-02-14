@@ -31,6 +31,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         subtype: ''
     });
     const [scenarioTitle, setScenarioTitle] = useState('Аудит актива');
+    const [financialStep, setFinancialStep] = useState(0); // 0: revenue, 1: r&d
 
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
@@ -136,27 +137,18 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
 
-                let shouldRequestRd = false;
-                let isComplete = false;
-
-                setForm(f => {
-                    if (f.annual_revenue === 0 && userMsg !== '0') {
-                        shouldRequestRd = true;
-                        return { ...f, annual_revenue: val };
-                    } else {
-                        isComplete = true;
-                        return { ...f, cost_rd: val };
-                    }
-                });
-
-                if (shouldRequestRd) {
-                    setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
-                } else if (isComplete) {
-                    setPhase('calculating');
-                    // Важно: берем актуальное значение через функциональный апдейт или передаем напрямую
+                if (financialStep === 0) {
+                    // Обработали выручку, переходим к R&D
+                    setForm(f => ({ ...f, annual_revenue: val }));
+                    setFinancialStep(1);
+                    setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)? Если данные неизвестны, укажите 0.' }]);
+                } else {
+                    // Обработали R&D, запускаем расчет
                     setForm(f => {
-                        runFinalValuation(f);
-                        return f;
+                        const finalUpdated = { ...f, cost_rd: val };
+                        setPhase('calculating');
+                        runFinalValuation(finalUpdated);
+                        return finalUpdated;
                     });
                 }
             }
