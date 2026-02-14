@@ -59,7 +59,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         setSelectedIP(ip);
         setMessages(prev => [...prev,
         { role: 'user', content: `Выбираю объект: ${ip.title}` },
-        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${IP_TYPES_RU[ip.type as keyof typeof IP_TYPES_RU] || ip.type}". Начнем с качественных характеристик.` }
+        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${IP_TYPES_RU[ip.type.toLowerCase() as keyof typeof IP_TYPES_RU] || ip.type}". Начнем с качественных характеристик.` }
         ]);
         setLoading(true);
 
@@ -219,7 +219,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                                                     <div className="flex flex-col">
                                                         <span className="text-xs font-bold text-white/80">{obj.title}</span>
                                                         <span className="text-[10px] text-white/30 uppercase tracking-wider">
-                                                            {IP_TYPES_RU[obj.type as keyof typeof IP_TYPES_RU] || obj.type}
+                                                            {IP_TYPES_RU[obj.type.toLowerCase() as keyof typeof IP_TYPES_RU] || obj.type}
                                                         </span>
                                                     </div>
                                                 </div>
