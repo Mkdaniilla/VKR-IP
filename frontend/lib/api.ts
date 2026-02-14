@@ -323,16 +323,6 @@ export async function deleteDocument(doc_id: number) {
   return true;
 }
 
-export async function analyzeDocument(doc_id: number) {
-  const res = await authFetch(`${API_URL}/documents/${doc_id}/analyze`, {
-    method: "POST",
-  });
-  if (!res.ok) {
-    const msg = await safeErr(res, "Не удалось проанализировать документ");
-    throw new Error(msg);
-  }
-  return await res.json();
-}
 
 // ===== Generate Document =====
 export async function generateDocument(

@@ -28,8 +28,6 @@ import {
   Package,
   Zap,
   Upload,
-  Search,
-  Lightbulb,
   X,
   FileText,
   Trash2,
@@ -38,8 +36,6 @@ import {
   ChevronRight,
   Scale,
   Plus,
-  AlertTriangle,
-  FileSearch,
   Download
 } from "lucide-react";
 
@@ -99,11 +95,6 @@ export default function IPObjectsPage() {
   const [counterpartyChoice, setCounterpartyChoice] = useState<Record<number, number>>({});
   const [counterparties, setCounterparties] = useState<Counterparty[]>([]);
 
-  // Analysis result
-  const [analyzingDocId, setAnalyzingDocId] = useState<number | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
-  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
-  const [lastAnalyzedDocId, setLastAnalyzedDocId] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -248,20 +239,6 @@ export default function IPObjectsPage() {
     );
   };
 
-  const onAnalyzeDoc = async (docId: number) => {
-    setAnalyzingDocId(docId);
-    try {
-      const { analyzeDocument } = await import("../lib/api");
-      const res = await analyzeDocument(docId);
-      setAnalysisResult(res);
-      setLastAnalyzedDocId(docId); // Save for viewer link
-      setShowAnalysisModal(true);
-    } catch (e: any) {
-      alert(e.message || "Ошибка при анализе");
-    } finally {
-      setAnalyzingDocId(null);
-    }
-  };
 
   const handleOpenFile = async (url: string, filename?: string) => {
     try {
@@ -639,19 +616,6 @@ export default function IPObjectsPage() {
                             </div>
                             <div className="flex items-center gap-3">
                               <button
-                                onClick={() => onAnalyzeDoc(doc.id)}
-                                disabled={analyzingDocId === doc.id}
-                                className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all shadow-lg flex items-center gap-2 group/audit"
-                                title="Аудит рисков"
-                              >
-                                {analyzingDocId === doc.id ? (
-                                  <RefreshCw className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <FileSearch className="w-3 h-3 group-hover/audit:scale-110" />
-                                )}
-                                {analyzingDocId === doc.id ? "Анализ..." : "Аудит"}
-                              </button>
-                              <button
                                 onClick={() => onDeleteDoc(it.id, doc.id)}
                                 disabled={deletingDocId === doc.id}
                                 className="text-white/20 hover:text-rose-500 p-1 transition-colors"
@@ -748,110 +712,6 @@ export default function IPObjectsPage() {
         )}
       </div>
 
-      {/* Analysis Modal */}
-      {showAnalysisModal && analysisResult && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="glass-card rounded-[2.5rem] w-full max-w-2xl overflow-hidden border-white/10 animate-in fade-in zoom-in duration-500">
-            <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/5">
-              <div>
-                <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Юридический аудит</h2>
-                <p className="text-cyan-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-2">Анализ рисков Smart AI</p>
-              </div>
-              <button
-                onClick={() => setShowAnalysisModal(false)}
-                className="text-white/30 hover:text-white transition-colors"
-                title="Закрыть"
-              >
-                <X className="w-8 h-8" />
-              </button>
-            </div>
-
-            <div className="p-10 max-h-[60vh] overflow-y-auto space-y-10 custom-scrollbar">
-              {/* Summary */}
-              <div className="p-6 bg-white/5 rounded-2xl border-l-4 border-cyan-500 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <FileText className="w-12 h-12 text-cyan-400" />
-                </div>
-                <h3 className="font-black text-white text-[10px] uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(34,211,238,0.8)]"></span>
-                  Резюме
-                </h3>
-                <p className="text-white/70 text-sm leading-relaxed relative z-10 font-medium italic">"{analysisResult?.summary}"</p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Risks */}
-                <div className="space-y-6">
-                  <h3 className="font-black text-rose-500 uppercase tracking-[0.2em] text-[10px] flex items-center gap-3">
-                    <span className="w-4 h-px bg-rose-500"></span>
-                    Критические риски
-                  </h3>
-                  <div className="space-y-3">
-                    {analysisResult?.risks?.map((risk: any, i: number) => {
-                      const title = typeof risk === 'object' ? (risk.title || risk.text || JSON.stringify(risk)) : risk;
-                      const desc = typeof risk === 'object' ? risk.description : null;
-
-                      return (
-                        <div key={i} className="p-4 bg-rose-500/10 rounded-2xl text-rose-300 text-xs font-bold border border-rose-500/20">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 bg-rose-500/20 rounded-lg flex items-center justify-center border border-rose-500/20">
-                              <AlertTriangle className="w-4 h-4 text-rose-500" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-black text-white mb-1 truncate">{String(title)}</div>
-                              {desc && <div className="text-[10px] opacity-70 mt-1 leading-relaxed">{String(desc)}</div>}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Recommendations */}
-                <div className="space-y-6">
-                  <h3 className="font-black text-emerald-500 uppercase tracking-[0.2em] text-[10px] flex items-center gap-3">
-                    <span className="w-4 h-px bg-emerald-500"></span>
-                    Рекомендации
-                  </h3>
-                  <div className="space-y-3">
-                    {(analysisResult?.recommendations || analysisResult?.improvements)?.map((rec: any, i: number) => {
-                      return (
-                        <div key={i} className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-300 text-xs font-bold border border-emerald-500/20 flex gap-4 transition-all hover:bg-emerald-500/20 group/rec">
-                          <Lightbulb className="w-6 h-6 text-emerald-400 group-hover/rec:scale-110 transition-transform flex-shrink-0" />
-                          <div className="flex-1 leading-relaxed">{String(rec.text || rec.title || rec)}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-10 bg-white/5 border-t border-white/5 flex justify-between items-center">
-              <button
-                onClick={() => {
-                  setShowAnalysisModal(false);
-                  if (lastAnalyzedDocId) {
-                    router.push(`/document-viewer/${lastAnalyzedDocId}`);
-                  }
-                }}
-                className="glass-button-secondary flex items-center gap-2 group/viewer"
-                disabled={!lastAnalyzedDocId}
-              >
-                <FileText className="w-4 h-4 group-hover/viewer:text-cyan-400" />
-                Открыть с подсветкой
-              </button>
-              <button
-                onClick={() => setShowAnalysisModal(false)}
-                className="glass-button-primary"
-              >
-                Ознакомлен
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </DashboardLayout>
   );
 }
