@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, User, Box, FileText, ArrowRight, Sparkles } from 'lucide-react';
-import { IPObject, getIPObjects } from '../lib/api';
+import { IPObject, getIPObjects, IP_TYPES_RU } from '../lib/api';
 
 interface Message {
     role: 'bot' | 'user';
@@ -57,7 +57,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         setSelectedIP(ip);
         setMessages(prev => [...prev,
         { role: 'user', content: `Выбираю объект: ${ip.title}` },
-        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${ip.type}". Начнем с качественных характеристик.` }
+        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${IP_TYPES_RU[ip.type as keyof typeof IP_TYPES_RU] || ip.type}". Начнем с качественных характеристик.` }
         ]);
         setLoading(true);
 
@@ -175,10 +175,10 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                         <Bot className="w-7 h-7 text-cyan-400" />
                     </div>
                     <div>
-                        <h4 className="text-sm font-black text-white uppercase tracking-tighter">Valuation Interviewer</h4>
+                        <h4 className="text-sm font-black text-white uppercase tracking-tighter">Мастер оценки ИС</h4>
                         <div className="flex items-center gap-2">
                             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Matreshka AI Agent</span>
+                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">MDM Агент (ИИ)</span>
                         </div>
                     </div>
                 </div>
