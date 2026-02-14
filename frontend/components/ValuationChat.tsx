@@ -94,37 +94,43 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         // Имитация раздумий ИИ
         setTimeout(async () => {
             if (phase === 'scenario') {
-                setForm(f => {
-                    const updated = {
-                        ...f,
-                        interview_responses: [...f.interview_responses, {
-                            question_group: scenarioTitle,
-                            value: userMsg,
-                            status: 'confirmed'
-                        }]
-                    };
+                // 1. Сначала обновляем форму
+                setForm(f => ({
+                    ...f,
+                    interview_responses: [...f.interview_responses, {
+                        question_group: scenarioTitle,
+                        value: userMsg,
+                        status: 'confirmed'
+                    }]
+                }));
 
-                    if (currentQuestionIdx + 1 < questions.length) {
-                        setMessages(prev => [...prev, { role: 'bot', content: questions[currentQuestionIdx + 1], type: 'question' }]);
-                        setCurrentQuestionIdx(currentQuestionIdx + 1);
-                    } else {
-                        setPhase('financials');
-                        setMessages(prev => [...prev, { role: 'bot', content: 'Понял. Теперь перейдем к экономике. Укажите примерную годовую выручку, которую приносит этот актив (в рублях). Если продукт новый, напишите 0.' }]);
-                    }
-                    return updated;
-                });
+                // 2. Затем логика переключения вопросов (ВНЕ setForm)
+                if (currentQuestionIdx + 1 < questions.length) {
+                    const nextIdx = currentQuestionIdx + 1;
+                    setMessages(prev => [...prev, { role: 'bot', content: questions[nextIdx], type: 'question' }]);
+                    setCurrentQuestionIdx(nextIdx);
+                } else {
+                    setPhase('financials');
+                    setMessages(prev => [...prev, { role: 'bot', content: 'Понял. Теперь перейдем к экономике. Укажите примерную годовую выручку, которую приносит этот актив (в рублях). Если продукт новый, напишите 0.' }]);
+                }
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
+
+                // Проверяем текущее состояние через функциональный апдейт, но результат используем аккуратно
                 setForm(f => {
-                    if (f.annual_revenue === 0 && userMsg !== '0') {
-                        const updated = { ...f, annual_revenue: val };
+                    const isFirstFinancial = f.annual_revenue === 0 && userMsg !== '0';
+
+                    if (isFirstFinancial) {
                         setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
-                        return updated;
+                        return { ...f, annual_revenue: val };
                     } else {
-                        const updated = { ...f, cost_rd: val };
-                        setPhase('calculating');
-                        runFinalValuation(updated);
-                        return updated;
+                        const finalUpdatedForm = { ...f, cost_rd: val };
+                        // Используем setTimeout, чтобы вывести эффект из цикла рендера
+                        setTimeout(() => {
+                            setPhase('calculating');
+                            runFinalValuation(finalUpdatedForm);
+                        }, 10);
+                        return finalUpdatedForm;
                     }
                 });
             }
