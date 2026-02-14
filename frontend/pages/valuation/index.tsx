@@ -48,10 +48,11 @@ export default function ValuationPage() {
   }, []);
 
   const handleDownloadReport = async () => {
-    if (!results) return;
+    if (!results || !results.pdf_url) return;
     setGeneratingPdf(true);
     try {
-      const blobUrl = await getProtectedFileUrl(`${API_URL}/api/valuation/report/${results.pdf_url.split("/").pop()}`);
+      const filename = results.pdf_url.split("/").pop();
+      const blobUrl = await getProtectedFileUrl(`${API_URL}/valuation/report/${filename}`);
       const a = document.createElement("a");
       a.href = blobUrl;
       a.download = `Valuation_Report_${results.id}.pdf`;
@@ -59,6 +60,7 @@ export default function ValuationPage() {
       a.click();
       a.remove();
     } catch (e) {
+      console.error("Download error:", e);
       alert("Не удалось скачать отчет");
     } finally {
       setGeneratingPdf(false);
@@ -85,9 +87,9 @@ export default function ValuationPage() {
           <div className="flex flex-col items-end gap-2">
             <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Результат оценки</span>
             <div className="text-4xl md:text-5xl font-black text-white px-8 py-4 bg-white/5 border border-white/10 rounded-[2rem] shadow-2xl backdrop-blur-xl">
-              {results ? (
+              {results && results.final_value !== undefined ? (
                 <div className="flex flex-col items-end">
-                  <span className="text-cyan-400">{results.final_value.toLocaleString()} {results.currency}</span>
+                  <span className="text-cyan-400">{(results.final_value || 0).toLocaleString()} {results.currency || 'RUB'}</span>
                 </div>
               ) : "0 RUB"}
             </div>
@@ -114,13 +116,13 @@ export default function ValuationPage() {
                         <span className="text-xs font-black text-white/40 uppercase tracking-[0.3em]">Рыночная стоимость (Fair Value)</span>
                       </div>
                       <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter">
-                        <FormattedPrice value={results.final_value} currency={results.currency} />
+                        <FormattedPrice value={results.final_value || 0} currency={results.currency || 'RUB'} />
                       </h2>
-                      {results.final_value_min && (
+                      {results.final_value_min !== undefined && (
                         <div className="inline-flex items-center gap-4 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl">
                           <span className="text-xs font-bold text-white/30 uppercase">Диапазон:</span>
                           <span className="text-sm font-black text-cyan-400">
-                            {results.final_value_min.toLocaleString()} — {results.final_value_max?.toLocaleString()} {results.currency}
+                            {(results.final_value_min || 0).toLocaleString()} — {(results.final_value_max || 0).toLocaleString()} {results.currency || 'RUB'}
                           </span>
                         </div>
                       )}
@@ -179,7 +181,7 @@ export default function ValuationPage() {
                           </div>
                         </div>
                         <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-white/10">
-                          <div style={{ width: "85%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-cyan-500 animate-pulse"></div>
+                          <div className="w-[85%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-cyan-500 animate-pulse"></div>
                         </div>
                       </div>
                       <p className="text-[10px] text-white/20 uppercase font-bold leading-relaxed px-2 mt-4 text-center">

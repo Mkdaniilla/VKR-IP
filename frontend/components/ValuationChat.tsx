@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Box, FileText, ArrowRight, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Box, FileText, ArrowRight } from 'lucide-react';
 import { IPObject, getIPObjects, IP_TYPES_RU } from '../lib/api';
 
 interface Message {
@@ -56,6 +56,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
 
                 setMessages(prev => [...prev, { role: 'bot', type: 'selection', content: 'Для начала, выберите объект из вашего портфеля, который мы будем оценивать:' }]);
             } catch (err) {
+                console.error('[ValuationChat] Load objects error:', err);
                 setMessages(prev => [...prev, { role: 'bot', content: 'Ошибка загрузки объектов. Пожалуйста убедитесь, что вы авторизованы.' }]);
             }
         }
@@ -83,6 +84,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
             });
             const scenario = await r.json();
+
             setQuestions(scenario.questions || []);
             setScenarioTitle(scenario.title || 'Аудит актива');
             setCurrentQuestionIdx(0);
@@ -95,6 +97,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                 setLoading(false);
             }, 1000);
         } catch (err) {
+            console.error('[ValuationChat] Scenario load error:', err);
             setMessages(prev => [...prev, { role: 'bot', content: 'Не удалось загрузить специфичный сценарий, переходим к экономике.' }]);
             setPhase('financials');
             setLoading(false);
@@ -133,7 +136,6 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
 
-                // Используем локальные переменные для принятия решения, чтобы не лезть в сеттер за побочными эффектами
                 let shouldRequestRd = false;
                 let isComplete = false;
 
@@ -147,14 +149,15 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                     }
                 });
 
-                // Вызываем эффекты на основе флагов
                 if (shouldRequestRd) {
                     setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
                 } else if (isComplete) {
                     setPhase('calculating');
-                    // Передаем данные напрямую через текущее состояние + новое значение
-                    const finalForm = { ...formData, cost_rd: val };
-                    runFinalValuation(finalForm);
+                    // Важно: берем актуальное значение через функциональный апдейт или передаем напрямую
+                    setForm(f => {
+                        runFinalValuation(f);
+                        return f;
+                    });
                 }
             }
             setLoading(false);
@@ -179,7 +182,6 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                 legal_robustness: ['registered'],
                 scope_protection: 5,
                 valuation_purpose: 'market',
-                subtype: '',
                 subtype_metrics: {}
             };
 
@@ -192,6 +194,11 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                 body: JSON.stringify(payload)
             });
 
+            if (!r.ok) {
+                const errData = await r.json();
+                throw new Error(errData.detail || 'Ошибка сервера');
+            }
+
             const res = await r.json();
             onValuationComplete(res);
             setPhase('finished');
@@ -201,8 +208,10 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                 content: `Оценка завершена успешно! Мы определили рыночную стоимость актива.`,
                 data: res
             }]);
-        } catch (err) {
-            setMessages(prev => [...prev, { role: 'bot', content: 'Ошибка при расчете. Пожалуйста, попробуйте позже.' }]);
+        } catch (err: any) {
+            console.error('[ValuationChat] Calculation error:', err);
+            setMessages(prev => [...prev, { role: 'bot', content: 'Ошибка при расчете: ' + (err.message || 'сервер недоступен') }]);
+            setPhase('financials');
         }
     };
 
@@ -253,9 +262,9 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                                                 <div className="flex items-center gap-3">
                                                     <Box className="w-5 h-5 text-white/40 group-hover:text-cyan-400" />
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs font-bold text-white/80">{obj.title}</span>
+                                                        <span className="text-xs font-bold text-white/80">{obj.title || 'Без названия'}</span>
                                                         <span className="text-[10px] text-white/30 uppercase tracking-wider">
-                                                            {IP_TYPES_RU[obj.type.toLowerCase() as keyof typeof IP_TYPES_RU] || obj.type}
+                                                            {obj.type ? (IP_TYPES_RU[obj.type.toLowerCase() as keyof typeof IP_TYPES_RU] || obj.type) : 'Неизвестный тип'}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -274,21 +283,25 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                                         <div className="flex items-center justify-between">
                                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Рыночная стоимость</span>
                                             <span className="text-emerald-400 font-black text-2xl">
-                                                {new Intl.NumberFormat('ru-RU').format(m.data.final_value)} ₽
+                                                {(m.data.final_value || 0).toLocaleString()} ₽
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
                                                 <span className="block text-[8px] text-white/30 uppercase font-bold mb-1">Min диапазон</span>
-                                                <span className="text-xs text-white/70">{new Intl.NumberFormat('ru-RU').format(m.data.final_value_min || m.data.final_value * 0.9)} ₽</span>
+                                                <span className="text-xs text-white/70">{(m.data.final_value_min || (m.data.final_value || 0) * 0.9).toLocaleString()} ₽</span>
                                             </div>
                                             <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
                                                 <span className="block text-[8px] text-white/30 uppercase font-bold mb-1">Max диапазон</span>
-                                                <span className="text-xs text-white/70">{new Intl.NumberFormat('ru-RU').format(m.data.final_value_max || m.data.final_value * 1.1)} ₽</span>
+                                                <span className="text-xs text-white/70">{(m.data.final_value_max || (m.data.final_value || 0) * 1.1).toLocaleString()} ₽</span>
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => window.open(`/api/valuation/report/${m.data.pdf_url.split('/').pop()}`, '_blank')}
+                                            onClick={() => {
+                                                if (m.data.pdf_url) {
+                                                    window.open(`/api/valuation/report/${m.data.pdf_url.split('/').pop()}`, '_blank');
+                                                }
+                                            }}
                                             className="w-full flex items-center justify-center gap-3 p-5 bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                                         >
                                             <FileText className="w-5 h-5" />
