@@ -218,7 +218,9 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                                                     <Box className="w-5 h-5 text-white/40 group-hover:text-cyan-400" />
                                                     <div className="flex flex-col">
                                                         <span className="text-xs font-bold text-white/80">{obj.title}</span>
-                                                        <span className="text-[10px] text-white/30 uppercase tracking-wider">{obj.type}</span>
+                                                        <span className="text-[10px] text-white/30 uppercase tracking-wider">
+                                                            {IP_TYPES_RU[obj.type as keyof typeof IP_TYPES_RU] || obj.type}
+                                                        </span>
                                                     </div>
                                                 </div>
                                                 <ArrowRight className="w-4 h-4 text-white/10 group-hover:text-cyan-400" />
