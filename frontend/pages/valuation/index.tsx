@@ -33,6 +33,7 @@ type ValuationResponse = {
     ai_bullets: string[];
     strategic_recommendations: { icon: string; text: string }[];
     methodology: string;
+    metrics?: Record<string, number>;
   };
   pdf_url: string;
 };
@@ -129,6 +130,7 @@ export default function ValuationPage() {
                       onClick={handleDownloadReport}
                       disabled={generatingPdf}
                       className="group/btn flex items-center gap-6 px-10 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-xs shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                      title={generatingPdf ? "Формирование отчета..." : "Скачать PDF отчет"}
                     >
                       {generatingPdf ? "Формирование..." : "Скачать PDF отчет"}
                       <div className="p-2 bg-slate-950 rounded-lg group-hover/btn:translate-x-1 transition-transform">
@@ -202,7 +204,7 @@ export default function ValuationPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
               <h3 className="text-xs font-black text-white/20 uppercase tracking-[0.3em] mb-8">Asset Health Radar</h3>
               <div className="h-[300px] flex items-center justify-center">
-                <AssetHealthRadar />
+                <AssetHealthRadar metrics={results?.multiples_used?.metrics || { uniqueness: 7, commercial_potential: 8, protection: 6, market_fit: 7 }} />
               </div>
             </div>
 
@@ -212,7 +214,7 @@ export default function ValuationPage() {
                 Стратегия
               </h3>
               <div className="space-y-6">
-                {results?.multiples_used?.strategic_recommendations.map((rec, i) => (
+                {results?.multiples_used?.strategic_recommendations?.map((rec: any, i: number) => (
                   <div key={i} className="flex gap-4 p-4 hover:bg-white/5 rounded-2xl transition-colors group">
                     <span className="text-xl group-hover:scale-110 transition-transform">{rec.icon}</span>
                     <p className="text-[10px] text-white/50 font-bold uppercase leading-relaxed">{rec.text}</p>

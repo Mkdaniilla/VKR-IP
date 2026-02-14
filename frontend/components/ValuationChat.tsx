@@ -195,8 +195,8 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
 
                             <div className="flex flex-col gap-3">
                                 <div className={`p-6 rounded-[2rem] text-sm leading-relaxed ${m.role === 'user'
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/10'
-                                        : 'bg-white/5 border border-white/5 text-white/90 shadow-sm'
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/10'
+                                    : 'bg-white/5 border border-white/5 text-white/90 shadow-sm'
                                     }`}>
                                     {m.content}
                                 </div>
@@ -285,6 +285,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                         <button
                             onClick={handleSend}
                             disabled={!inputValue.trim() || loading}
+                            title="Отправить сообщение"
                             className="absolute right-3 top-3 bottom-3 w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-cyan-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
                         >
                             <Send className="w-5 h-5" />
