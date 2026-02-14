@@ -171,7 +171,7 @@ async def run_valuation(ai_client, inputs: dict) -> Dict[str, Any]:
         if resp.get("status") == "confirmed":
             interview_bonus += 0.02 # +2% за каждый подтвержденный факт
             evidence_extracted.append({
-                "factor": resp.get("question_group", "Общий фактор"),
+                "factor": resp.get("question_text") or resp.get("question_group") or "Общий фактор",
                 "value": resp.get("value"),
                 "source": resp.get("evidence_source", "Интервью"),
                 "status": "confirmed"

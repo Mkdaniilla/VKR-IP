@@ -441,28 +441,40 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     factors = results.get("factors_breakdown", [])
     if factors:
         content.append(Paragraph("Детализация влияния факторов (Factor Analysis):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=8)))
-        f_data = [["Фактор", "Влияние", "Значение / Множитель"]]
+        
+        # Mapping for safe PDF icons (DejaVu font compatible)
+        SAFE_ICONS = {
+            "⚖️": "L", "✅": "V", "🌍": "G", "🏳️": "J", "💎": "B", "📊": "M", "🎯": "P"
+        }
+        
+        f_data = [["Компонент влияния", "Вес / Множитель", "Статус в модели"]]
         for f in factors:
             impact_val = f.get('impact', 1.0)
             if f.get('type') == 'percentage':
                 display_impact = f"{'+' if impact_val > 0 else ''}{impact_val}%"
+                status_desc = "Корректировка базы"
             else:
                 display_impact = f"x {impact_val}"
+                status_desc = "Мультипликатор"
+            
+            icon = SAFE_ICONS.get(f.get('icon'), "")
+            name = f.get('name', '')
             
             f_data.append([
-                f.get('icon', '') + " " + f.get('name', ''),
+                Paragraph(f"<b>[{icon}]</b> {name}" if icon else name, styles["BodyCyr"]),
                 display_impact,
-                "Учтено в модели"
+                status_desc
             ])
             
-        tf = Table(f_data, colWidths=[70*mm, 40*mm, 60*mm])
+        tf = Table(f_data, colWidths=[80*mm, 40*mm, 50*mm])
         tf.setStyle(TableStyle([
             ('FONTNAME', (0,0), (-1,-1), FONT),
             ('FONTSIZE', (0,0), (-1,-1), 9),
             ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#cbd5e1")),
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
-            ('ALIGN', (1,1), (1,-1), 'CENTER'),
-            ('PADDING', (0,0), (-1,-1), 5),
+            ('ALIGN', (1,0), (2,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('PADDING', (0,0), (-1,-1), 6),
         ]))
         content.append(tf)
         content.append(Spacer(1, 15))
@@ -470,25 +482,33 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     # --- 2b. Evidence Base ---
     evidence = results.get("evidence_logs", [])
     if evidence:
-        content.append(Paragraph("Журнал доказательств (Audit Trail):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=5)))
-        evidence_data = [["Фактор / Группа", "Значение / Доказательство", "Статус"]]
+        content.append(Paragraph("Журнал доказательств и верификация (Audit Trail):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=8)))
+        evidence_data = [["Аспект / Вопрос интервью", "Зафиксированный факт", "Источник"]]
+        
+        # Distinct question styles
+        q_style = ParagraphStyle('QStyle', parent=styles['BodyCyr'], fontSize=8, leading=10)
+        v_style = ParagraphStyle('VStyle', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.HexColor("#1e293b"))
+        
         for e in evidence:
-            status_icon = "V" if e.get('status') == 'confirmed' else "?"
+            val = e.get('value', '—')
+            source = e.get('source', 'Интервью')
+            factor = e.get('factor', 'Фактор')
+            
             evidence_data.append([
-                Paragraph(e.get('factor', 'Фактор'), styles["BodyCyr"]),
-                Paragraph(f"{e.get('value', '')} ({e.get('source', '')})", styles["BodyCyr"]),
-                status_icon
+                Paragraph(factor, q_style),
+                Paragraph(val, v_style),
+                Paragraph(source, ParagraphStyle('Src', parent=styles['BodyCyr'], fontSize=7, alignment=1))
             ])
         
-        te = Table(evidence_data, colWidths=[50*mm, 100*mm, 20*mm])
+        te = Table(evidence_data, colWidths=[75*mm, 75*mm, 20*mm])
         te.setStyle(TableStyle([
             ('FONTNAME', (0,0), (-1,-1), FONT),
             ('FONTSIZE', (0,0), (-1,-1), 8),
-            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#cbd5e1")),
+            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#e2e8f0")),
             ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
             ('ALIGN', (2,0), (2,-1), 'CENTER'),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('PADDING', (0,0), (-1,-1), 4),
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('PADDING', (0,0), (-1,-1), 6),
         ]))
         content.append(te)
         content.append(Spacer(1, 15))

@@ -120,6 +120,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                     ...f,
                     interview_responses: [...f.interview_responses, {
                         question_group: scenarioTitle,
+                        question_text: questions[currentQuestionIdx], // Добавляем текст вопроса
                         value: userMsg,
                         status: 'confirmed'
                     }]
