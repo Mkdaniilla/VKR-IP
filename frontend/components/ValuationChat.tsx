@@ -42,6 +42,18 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             try {
                 const objects = await getIPObjects();
                 setIpObjects(objects);
+
+                // Проверка objectId в URL для автовыбора
+                const urlParams = new URLSearchParams(window.location.search);
+                const objId = urlParams.get('objectId');
+                if (objId) {
+                    const found = objects.find(o => o.id === parseInt(objId));
+                    if (found) {
+                        handleSelectIP(found);
+                        return;
+                    }
+                }
+
                 setMessages(prev => [...prev, { role: 'bot', type: 'selection', content: 'Для начала, выберите объект из вашего портфеля, который мы будем оценивать:' }]);
             } catch (err) {
                 setMessages(prev => [...prev, { role: 'bot', content: 'Ошибка загрузки объектов. Пожалуйста убедитесь, что вы авторизованы.' }]);
@@ -56,10 +68,13 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
 
     // 2. Обработка выбора актива
     const handleSelectIP = async (ip: IPObject) => {
+        const typeKey = (ip.type || 'other').toLowerCase();
+        const typeRus = IP_TYPES_RU[typeKey as keyof typeof IP_TYPES_RU] || ip.type || 'Актив';
+
         setSelectedIP(ip);
         setMessages(prev => [...prev,
         { role: 'user', content: `Выбираю объект: ${ip.title}` },
-        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${IP_TYPES_RU[ip.type.toLowerCase() as keyof typeof IP_TYPES_RU] || ip.type}". Начнем с качественных характеристик.` }
+        { role: 'bot', content: `Отлично. Я подготовил сценарий аудита для типа "${typeRus}". Начнем с качественных характеристик.` }
         ]);
         setLoading(true);
 
@@ -70,15 +85,17 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             const scenario = await r.json();
             setQuestions(scenario.questions || []);
             setScenarioTitle(scenario.title || 'Аудит актива');
+            setCurrentQuestionIdx(0);
             setForm(f => ({ ...f, subtype: scenario.title || '' }));
             setPhase('scenario');
 
             setTimeout(() => {
-                setMessages(prev => [...prev, { role: 'bot', content: scenario.questions[0], type: 'question' }]);
+                const firstQ = scenario.questions && scenario.questions[0] ? scenario.questions[0] : 'Расскажите подробнее об объекте';
+                setMessages(prev => [...prev, { role: 'bot', content: firstQ, type: 'question' }]);
                 setLoading(false);
             }, 1000);
         } catch (err) {
-            setMessages(prev => [...prev, { role: 'bot', content: 'Не удалось загрузить специфичный сценарий, переходим к общим вопросам.' }]);
+            setMessages(prev => [...prev, { role: 'bot', content: 'Не удалось загрузить специфичный сценарий, переходим к экономике.' }]);
             setPhase('financials');
             setLoading(false);
         }
@@ -94,7 +111,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         // Имитация раздумий ИИ
         setTimeout(async () => {
             if (phase === 'scenario') {
-                // 1. Сначала обновляем форму
+                // Обновляем данные формы
                 setForm(f => ({
                     ...f,
                     interview_responses: [...f.interview_responses, {
@@ -104,9 +121,9 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                     }]
                 }));
 
-                // 2. Затем логика переключения вопросов (ВНЕ setForm)
-                if (currentQuestionIdx + 1 < questions.length) {
-                    const nextIdx = currentQuestionIdx + 1;
+                // Логика перехода к следующему вопросу (ВНЕ setForm)
+                const nextIdx = currentQuestionIdx + 1;
+                if (nextIdx < questions.length) {
                     setMessages(prev => [...prev, { role: 'bot', content: questions[nextIdx], type: 'question' }]);
                     setCurrentQuestionIdx(nextIdx);
                 } else {
@@ -116,23 +133,29 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
 
-                // Проверяем текущее состояние через функциональный апдейт, но результат используем аккуратно
-                setForm(f => {
-                    const isFirstFinancial = f.annual_revenue === 0 && userMsg !== '0';
+                // Используем локальные переменные для принятия решения, чтобы не лезть в сеттер за побочными эффектами
+                let shouldRequestRd = false;
+                let isComplete = false;
 
-                    if (isFirstFinancial) {
-                        setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
+                setForm(f => {
+                    if (f.annual_revenue === 0 && userMsg !== '0') {
+                        shouldRequestRd = true;
                         return { ...f, annual_revenue: val };
                     } else {
-                        const finalUpdatedForm = { ...f, cost_rd: val };
-                        // Используем setTimeout, чтобы вывести эффект из цикла рендера
-                        setTimeout(() => {
-                            setPhase('calculating');
-                            runFinalValuation(finalUpdatedForm);
-                        }, 10);
-                        return finalUpdatedForm;
+                        isComplete = true;
+                        return { ...f, cost_rd: val };
                     }
                 });
+
+                // Вызываем эффекты на основе флагов
+                if (shouldRequestRd) {
+                    setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
+                } else if (isComplete) {
+                    setPhase('calculating');
+                    // Передаем данные напрямую через текущее состояние + новое значение
+                    const finalForm = { ...formData, cost_rd: val };
+                    runFinalValuation(finalForm);
+                }
             }
             setLoading(false);
         }, 800);
