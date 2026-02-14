@@ -48,6 +48,7 @@ PURPOSE_MAP = {
 }
 
 ROBUSTNESS_MAP = {
+    "registered": "Государственная регистрация / Патент",
     "defense": "Защита в суде (успешная)",
     "examination": "Гос. экспертиза (пройдена)",
     "maintenance": "Поддержание в силе (оплачено)",
@@ -119,17 +120,18 @@ SUBTYPE_MAP = {
     "interior": "Интерьерное решение",
     "package": "Упаковка и этикетка",
     
-    # Trade name
-    "holding": "Наименование холдинга",
-    "retail_chain": "Торговая сеть",
-    "service_corp": "Сервисная корпорация",
+    # Performance
+    "live": "Живое исполнение",
+    "recorded": "Запись выступления",
+    "concert": "Концертная программа",
     
-    # Know-how
-    "tech_process": "Технологический процесс",
-    "client_base": "Клиентская база",
-    "marketing_strategy": "Стратегия развития",
+    # Phonogram
+    "album": "Музыкальный альбом",
+    "single": "Сингл / Трек",
+    "podcast": "Подкаст / Аудиопередача",
 
-    "other": "Другое"
+    "other": "Другое",
+    "standard": "Основной профиль"
 }
 
 METRIC_LABELS = {

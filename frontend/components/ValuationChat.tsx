@@ -27,8 +27,10 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
     const [formData, setForm] = useState<any>({
         annual_revenue: 0,
         cost_rd: 0,
-        interview_responses: []
+        interview_responses: [],
+        subtype: ''
     });
+    const [scenarioTitle, setScenarioTitle] = useState('Аудит актива');
 
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
@@ -67,6 +69,8 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
             });
             const scenario = await r.json();
             setQuestions(scenario.questions || []);
+            setScenarioTitle(scenario.title || 'Аудит актива');
+            setForm(f => ({ ...f, subtype: scenario.title || '' }));
             setPhase('scenario');
 
             setTimeout(() => {
@@ -91,7 +95,7 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         setTimeout(async () => {
             if (phase === 'scenario') {
                 const updatedResponses = [...formData.interview_responses, {
-                    question_group: 'Аудит',
+                    question_group: scenarioTitle,
                     value: userMsg,
                     status: 'confirmed'
                 }];
