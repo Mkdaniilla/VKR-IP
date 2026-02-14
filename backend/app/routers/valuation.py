@@ -53,8 +53,15 @@ async def estimate_and_create(
             title = ip_object.title
 
         # Генерация PDF
+        payload_data = payload.model_dump()
+        if payload.ip_object_id:
+            # Получаем список имен документов для отчета
+            docs = db.query(Document).filter(Document.ip_id == payload.ip_object_id).all()
+            if docs:
+                payload_data["attached_documents"] = [d.filename for d in docs]
+
         filename = f"valuation_{ip_object.id}.pdf"
-        pdf_url = generate_pdf(ip_object.id, payload.model_dump(), results, payload.currency, filename)
+        pdf_url = generate_pdf(ip_object.id, payload_data, results, payload.currency, filename)
 
         ip_object.report_path = pdf_url
         

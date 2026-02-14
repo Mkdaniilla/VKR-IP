@@ -338,6 +338,10 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     subtype_raw = payload.get("subtype", "")
     subtype_str = SUBTYPE_MAP.get(subtype_raw, subtype_raw) if subtype_raw else "Не указано"
 
+    # Attached documents list
+    attached_docs = payload.get("attached_documents", [])
+    docs_str = ", ".join(attached_docs) if attached_docs else "Только данные интервью"
+
     # Data for the first table
     table_data_1 = [
         ["Тип объекта:", Paragraph(ip_type_str, styles["BodyCyr"])],
@@ -345,8 +349,8 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         ["Цель оценки:", Paragraph(PURPOSE_MAP.get(payload.get("valuation_purpose", "market"), "Рыночная"), styles["BodyCyr"])],
         ["Отрасль:", Paragraph(industry_str, styles["BodyCyr"])],
         ["Рынок сбыта:", Paragraph(reach_str, styles["BodyCyr"])],
-        ["Широта охраны:", f"{payload.get('scope_protection', 5)} / 10"],
         ["Юридическая сила:", Paragraph(robustness_str, styles["BodyCyr"])],
+        ["Материалы анализа:", Paragraph(docs_str, styles["BodyCyr"])],
         ["Годовой доход:", fmt_curr(payload.get('annual_revenue', 0))],
         ["Вложения (R&D):", fmt_curr(payload.get('cost_rd', 0))],
     ]
@@ -526,7 +530,7 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     
     explanations = [
         f"<b>• Модель DCF:</b> Оценка основана на методе дисконтированных денежных потоков по ставке {pro_factors.get('discount_rate')}.",
-        f"<b>• Доказательная база:</b> Стоимость скорректирована на основе верифицированных фактов из интервью и документов.",
+        "<b>• Доказательная база:</b> Стоимость скорректирована на основе верифицированных фактов из интервью и проанализированных материалов актива.",
         "<b>• Диапазон стоимости:</b> Отражает уверенность ИИ в предоставленных данных. Большее количество доказательств сужает диапазон."
     ]
     
