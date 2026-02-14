@@ -94,32 +94,39 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         // Имитация раздумий ИИ
         setTimeout(async () => {
             if (phase === 'scenario') {
-                const updatedResponses = [...formData.interview_responses, {
-                    question_group: scenarioTitle,
-                    value: userMsg,
-                    status: 'confirmed'
-                }];
-                const newFormData = { ...formData, interview_responses: updatedResponses };
-                setForm(newFormData);
+                setForm(f => {
+                    const updated = {
+                        ...f,
+                        interview_responses: [...f.interview_responses, {
+                            question_group: scenarioTitle,
+                            value: userMsg,
+                            status: 'confirmed'
+                        }]
+                    };
 
-                if (currentQuestionIdx + 1 < questions.length) {
-                    const next = currentQuestionIdx + 1;
-                    setCurrentQuestionIdx(next);
-                    setMessages(prev => [...prev, { role: 'bot', content: questions[next], type: 'question' }]);
-                } else {
-                    setPhase('financials');
-                    setMessages(prev => [...prev, { role: 'bot', content: 'Понял. Теперь перейдем к экономике. Укажите примерную годовую выручку, которую приносит этот актив (в рублях). Если продукт новый, напишите 0.' }]);
-                }
+                    if (currentQuestionIdx + 1 < questions.length) {
+                        setMessages(prev => [...prev, { role: 'bot', content: questions[currentQuestionIdx + 1], type: 'question' }]);
+                        setCurrentQuestionIdx(currentQuestionIdx + 1);
+                    } else {
+                        setPhase('financials');
+                        setMessages(prev => [...prev, { role: 'bot', content: 'Понял. Теперь перейдем к экономике. Укажите примерную годовую выручку, которую приносит этот актив (в рублях). Если продукт новый, напишите 0.' }]);
+                    }
+                    return updated;
+                });
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
-                if (formData.annual_revenue === 0 && userMsg !== '0') {
-                    setForm({ ...formData, annual_revenue: val });
-                    setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
-                } else {
-                    setForm({ ...formData, cost_rd: val });
-                    setPhase('calculating');
-                    await runFinalValuation({ ...formData, cost_rd: val });
-                }
+                setForm(f => {
+                    if (f.annual_revenue === 0 && userMsg !== '0') {
+                        const updated = { ...f, annual_revenue: val };
+                        setMessages(prev => [...prev, { role: 'bot', content: 'Записал. А каков был общий бюджет на разработку или создание этого актива (R&D Cost)?' }]);
+                        return updated;
+                    } else {
+                        const updated = { ...f, cost_rd: val };
+                        setPhase('calculating');
+                        runFinalValuation(updated);
+                        return updated;
+                    }
+                });
             }
             setLoading(false);
         }, 800);
