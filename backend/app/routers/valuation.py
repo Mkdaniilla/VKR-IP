@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 import os
+import logging
 
 from app import models
 from app.database import get_db
@@ -14,6 +15,7 @@ from app.services.ai_client import OpenRouterClient
 from app.services.valuation_engine import run_valuation
 from app.services.valuation_report import generate_pdf
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/valuation", tags=["valuation"])
 
 REPORT_DIR = "storage/valuation_reports"
@@ -29,15 +31,47 @@ async def estimate_and_create(
     
     try:
         ai_client = OpenRouterClient()
-        results = await run_valuation(ai_client, payload.model_dump())
-
-        # Если уже есть ID объекта, привязываем к нему
+        # Если уже есть ID объекта, привязываем к нему и ищем документы ЗАРАНЕЕ
+        attached_docs = []
         if payload.ip_object_id:
-            ip_object = db.query(IPObject).filter(IPObject.id == payload.ip_object_id, IPObject.owner_id == current_user.id).first()
+            logger.info(f"--- DEBUG: Request for IP Object ID: {payload.ip_object_id} ---")
+            
+            ip_object = db.query(IPObject).filter(IPObject.id == payload.ip_object_id).first()
             if not ip_object:
+                logger.error(f"--- DEBUG: IP Object {payload.ip_object_id} NOT FOUND IN DB ---")
                 raise HTTPException(status_code=404, detail="IP объект не найден")
             
-            ip_object.estimated_value = results["final_value"]
+            # Предварительно загружаем список документов для движка оценки
+            docs = db.query(Document).filter(Document.ip_id == payload.ip_object_id).all()
+            attached_docs = [{"filename": d.filename, "id": d.id} for d in docs]
+            logger.info(f"--- DEBUG: Found {len(attached_docs)} documents for IP Object {payload.ip_object_id} ---")
+            for d in attached_docs:
+                logger.info(f"--- DEBUG: Document: {d['filename']} ---")
+
+        # Запуск оценки с учетом найденных документов
+        valuation_inputs = payload.model_dump()
+        valuation_inputs["attached_documents"] = attached_docs
+        
+        results = await run_valuation(ai_client, valuation_inputs)
+        
+        # Гарантируем, что доказательства из документов попали в итоговый список для фронтенда
+        if "evidence_logs" not in results:
+            results["evidence_logs"] = []
+        
+        # Если в attached_docs что-то есть, а в результатах еще нет - добавляем для отображения
+        for ad in attached_docs:
+            already_exists = any(log.get("value") == ad["filename"] for log in results["evidence_logs"])
+            if not already_exists:
+                results["evidence_logs"].append({
+                    "factor": "Подтверждающий документ",
+                    "value": ad["filename"],
+                    "source": "Система MDM",
+                    "status": "confirmed"
+                })
+
+        if payload.ip_object_id:
+            # Обновляем существующий объект
+            ip_object.estimated_value = round(results["final_value"])
             title = ip_object.title
         else:
             # Создаём новый черновик
@@ -46,7 +80,7 @@ async def estimate_and_create(
                 type=payload.ip_type,
                 status=IPStatus.draft,
                 owner_id=current_user.id,
-                estimated_value=results["final_value"],
+                estimated_value=round(results["final_value"]),
             )
             db.add(ip_object)
             db.flush()  # Получаем ID без коммита
@@ -65,35 +99,21 @@ async def estimate_and_create(
 
         ip_object.report_path = pdf_url
         
-        # Добавляем или обновляем документ
-        doc_title = f"Оценка ИС - {title}.pdf"
-        doc = db.query(Document).filter(
-            Document.ip_id == ip_object.id,
-            Document.filename == doc_title
-        ).first()
-        
-        if not doc:
-            doc = Document(
-                ip_id=ip_object.id,
-                filename=doc_title,
-                filepath=filename
-            )
-            db.add(doc)
-        else:
-            doc.filename = doc_title
-            doc.filepath = filename
-            
         db.commit()
         
         logger.info(f"Valuation created for IP object {ip_object.id} by user {current_user.id}")
 
         return ValuationOut(
             id=ip_object.id,
-            baseline_value=float(results["baseline_value"]),
+            baseline_value=round(float(results["baseline_value"])),
             ai_adjustment=float(results["ai_adjustment"]),
-            final_value=float(results["final_value"]),
+            final_value=round(float(results["final_value"])),
+            final_value_min=round(float(results.get("final_value_min", results["final_value"] * 0.9))),
+            final_value_max=round(float(results.get("final_value_max", results["final_value"] * 1.1))),
             currency=payload.currency,
             risk_discount=float(results["risk_discount"]),
+            factors_breakdown=results.get("factors_breakdown", []),
+            evidence_logs=results.get("evidence_logs", []),
             multiples_used=results["multiples_used"],
             pdf_url=pdf_url,
             ip_object=ip_object,

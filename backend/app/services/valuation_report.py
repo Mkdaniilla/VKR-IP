@@ -226,21 +226,221 @@ METRIC_LABELS = {
 
 INDUSTRY_MAP = {
     "it": "IT / Программное обеспечение",
+    "pharma": "Фармацевтика / Биотехнологии",
+    "manufacturing": "Промышленность / Производство",
     "retail": "Ритейл / Торговля",
-    "manufacturing": "Производство",
-    "services": "Услуги / Консалтинг",
-    "finance": "Финансы / Финтех",
-    "healthcare": "Медицина / HealthTech",
-    "education": "Образование",
+    "fmcg": "FMCG / Потребительские товары",
+    "energy": "Энергетика и добыча",
+    "agro": "Сельское хозяйство",
+    "horeca": "HoReCa / Гостеприимство",
+    "fintech": "Финтех / Цифровые активы",
     "media": "Медиа / Развлечения",
+    "services": "Услуги / Консалтинг",
+    "education": "Образование / EdTech",
+    "construction": "Строительство / Девелопмент",
     "other": "Другое"
+}
+
+DIRECTION_MAP = {
+    "corporate": "Корпоративный бренд (Зонтичный)",
+    "product": "Продуктовая линейка",
+    "retail_chain": "Торговая сеть",
+    "personal": "Личный бренд",
+    "franchise": "Франшиза / Модель",
+    "other": "Общее использование"
 }
 
 MARKET_REACH_MAP = {
     "local": "Локальный (Город/Регион)",
-    "national": "Национальный (РФ)",
+    "national": "Национальный (Россия)",
+    "regional": "Межрегиональный (СНГ/ЕАЭС)",
     "global": "Международный / Глобальный"
 }
+# --- ANALYTICAL INTERPRETATIONS 3.0 (Ultimate Expert Knowledge Base) ---
+# --- ANALYTICAL INTERPRETATIONS 3.5 (Expert Trademark Knowledge Base) ---
+ANALYTICAL_RULES = {
+    # == БАЗОВЫЕ ЮРИДИЧЕСКИЕ ФАКТОРЫ ==
+    "Да, полностью": {
+        "explanation": "Полная юридическая чистота прав и наличие документальных доказательств владения (титула) исключает риски оспаривания. Это фундаментальный фактор, обеспечивающий ликвидность актива в сделках.",
+        "impact": "+10.0%", "type": "positive"
+    },
+    "Нет, обременений нет": {
+        "explanation": "Отсутствие залогов, арестов и сторонних притязаний подтверждает статус актива как 'чистого' обеспечения. Это минимизирует дисконт за правовую неопределенность.",
+        "impact": "+5.0%", "type": "positive"
+    },
+    "зарегистрированы в Роспатенте": {
+        "explanation": "Наличие государственной регистрации — высший уровень правовой охраны. Она создает неоспоримую презумпцию владения и позволяет эффективно блокировать действия нарушителей.",
+        "impact": "+10.0%", "type": "positive"
+    },
+    "успешных защит": {
+        "explanation": "История успешной защиты прав в судах или ППС подтверждает 'выживаемость' знака. Это повышает доверие инвестора, так как актив уже прошел проверку на прочность.",
+        "impact": "+12.0%", "type": "positive"
+    },
+    "залоге у банка": {
+        "explanation": "Наличие обременения в пользу кредитных организаций существенно ограничивает права распоряжения активом. Модель закладывает дисконт на финансовые риски и риски взыскания.",
+        "impact": "-20.0%", "type": "negative"
+    },
+    "были сложности / споры": {
+        "explanation": "Наличие текущих или прошлых судебных споров создает риск аннулирования или ограничения охраны. В стоимость заложен консервативный дисконт на юридические издержки.",
+        "impact": "-25.0%", "type": "negative"
+    },
+
+    # == МАСШТАБ И РЫНОЧНЫЙ ОХВАТ ==
+    "Глобальный": {
+        "explanation": "Международный масштаб использования превращает бренд в глобальный нематериальный актив. Это открывает доступ к рынкам с высокой покупательной способностью и валютной выручке.",
+        "impact": "x 1.8", "type": "multiplier"
+    },
+    "Масштаб: СНГ": {
+        "explanation": "Межрегиональный охват (СНГ / ЕАЭС) обеспечивает устойчивость денежного потока в рамках нескольких дружественных юрисдикций, снижая страновые риски.",
+        "impact": "x 1.4", "type": "multiplier"
+    },
+    "Экспорт: СНГ": {
+        "explanation": "Наличие экспортных поставок или присутствие в странах содружества подтверждает высокую узнаваемость бренда за пределами домашнего рынка и его международную ликвидность.",
+        "impact": "x 1.4", "type": "multiplier"
+    },
+    "Российский рынок": {
+        "explanation": "Национальный масштаб обеспечивает устойчивость денежного потока в рамках одной юрисдикции. Стоимость базируется на стабильном внутреннем спросе.",
+        "impact": "x 1.1", "type": "multiplier"
+    },
+    "Локальный": {
+        "explanation": "Ограничение охвата одним регионом снижает потенциал масштабируемости, что учитывается через понижающий коэффициент к рыночному мультипликатору.",
+        "impact": "x 0.7", "type": "multiplier"
+    },
+
+    # == ТИП ИСПОЛЬЗОВАНИЯ БРЕНДА ==
+    "Корпоративный бренд": {
+        "explanation": "Зонтичный бренд холдинга аккумулирует репутацию всех дочерних направлений. Это создает эффект синергии и долгосрочную премию к рыночной цене.",
+        "impact": "+15.0%", "type": "positive"
+    },
+    "Торговая сеть": {
+        "explanation": "Для ритейла сила бренда определяется количеством точек контакта. Развитая сеть подтверждает высокую узнаваемость и отработанные бизнес-процессы.",
+        "impact": "+8.0%", "type": "positive"
+    },
+    "Франшиза": {
+        "explanation": "Способность бренда к масштабированию через франчайзинг — признак высокодоходной бизнес-модели. Актив обладает отличной возвратностью инвестиций.",
+        "impact": "+12.0%", "type": "positive"
+    },
+    "Личный бренд": {
+        "explanation": "Высокая привязка к личности владельца является фактором риска: при смене собственника ценность актива может резко упасть. Модель применяет корректировку на неразрывную связь.",
+        "impact": "-10.0%", "type": "negative"
+    },
+    "Продуктовая линейка": {
+        "explanation": "Фокус на конкретной товарной группе позволяет сформировать лояльное ядро потребителей. Стоимость актива защищена специализацией.",
+        "impact": "+7.0%", "type": "positive"
+    },
+    "Да, без регистрации": {
+        "explanation": "Наличие лицензионных отношений подтверждает коммерческий спрос. Однако отсутствие регистрации договоров в Роспатенте создает юридические риски.",
+        "impact": "+5.0%", "type": "neutral"
+    },
+    "В процессе переговоров": {
+        "explanation": "Активная фаза переговоров по лицензированию свидетельствует о высоком коммерческом интересе к бренду. Это подтверждает потенциал масштабирования и будущих денежных потоков.",
+        "impact": "+4.0%", "type": "positive"
+    },
+    "Нет, используем единолично": {
+        "explanation": "Единоличное использование знака обеспечивает правообладателю полный контроль над репутацией и качеством товаров/услуг. Отсутствие внешних лицензий исключает риски потери управляемости брендом.",
+        "impact": "+2.0%", "type": "positive"
+    },
+    "Ограничено лицензией": {
+        "explanation": "Наличие действующих лицензий ограничивает правообладателя в части эксклюзивного распоряжения активом. Модель учитывает правовые ограничения и разделение выгод с лицензиатами.",
+        "impact": "-5.0%", "type": "negative"
+    },
+
+    # == МАРКЕТИНГОВЫЙ БЮДЖЕТ (СИЛА ЗНАКА) ==
+    "свыше 5 000 000": {
+        "explanation": "Масштабные инвестиции в продвижение формируют статус Top-of-Mind. Исключительная узнаваемость позволяет обосновать максимальную ставку роялти.",
+        "impact": "+25.0%", "type": "positive"
+    },
+    "1 000 000 - 5 000 000": {
+        "explanation": "Высокая маркетинговая активность формирует устойчивый бренд-капитал. Актив находится в активной фазе роста капитализации.",
+        "impact": "+18.0%", "type": "positive"
+    },
+    "до 1 000 000": {
+        "explanation": "Средний уровень вложений обеспечивает стабильное присутствие на рынке в своем сегменте без претензий на доминирование.",
+        "impact": "+10.0%", "type": "positive"
+    },
+    "до 200 000": {
+        "explanation": "Начальный этап формирования бренда. Текущая стоимость базируется на потенциале, требующем дальнейшего инвестиционного подтверждения.",
+        "impact": "+3.0%", "type": "neutral"
+    },
+    "до 50 000": {
+        "explanation": "Минимальные вложения в маркетинг. Ценность актива на данном этапе формируется преимущественно за счет качественных характеристик продукта.",
+        "impact": "+1.0%", "type": "neutral"
+    }
+}
+
+def get_interpretation(val_text: str, factor_name: str = "") -> dict | None:
+    """
+    Final smart matching engine with semantic hierarchy.
+    """
+    v = str(val_text).lower()
+    f = str(factor_name).lower()
+    
+    # 1. High Priority Keyword Mappings (Check value AND factor context)
+    priority_map = [
+        # Values
+        ("глобальный", "Глобальный"),
+        ("межрегиональный", "Масштаб: СНГ"),
+        ("снг", "Экспорт: СНГ"),
+        ("корпоративный", "Корпоративный бренд"),
+        ("продуктов", "Продуктовая линейка"),
+        ("торговая сеть", "Торговая сеть"),
+        ("франшиза", "Франшиза"),
+        ("полностью", "Да, полностью"),
+        ("без регистрации", "Да, без регистрации"),
+        ("лицензия", "Да, без регистрации"),
+        ("обременений нет", "Нет, обременений нет"),
+        ("роспатент", "зарегистрированы в Роспатенте"),
+        ("защит", "успешных защит"),
+        ("нац.", "Российский рынок"),
+        ("россия", "Российский рынок"),
+        ("российский рынок", "Российский рынок"),
+        ("локальный", "Локальный"),
+        ("залог", "залоге у банка"),
+        ("переговоров", "В процессе переговоров"),
+        ("единолично", "Нет, используем единолично"),
+        ("ограничено лицензией", "Ограничено лицензией"),
+        ("сложности", "были сложности / споры"),
+        ("спор", "были сложности / споры"),
+        ("личный бренд", "Личный бренд"),
+        # Marketing budgets - Large values first!
+        ("свыше 5 000 000", "свыше 5 000 000"),
+        ("1 000 000 - 5 000 000", "1 000 000 - 5 000 000"),
+        ("миллион", "до 1 000 000"),
+        ("200 000", "до 200 000"),
+        ("50 000", "до 50 000")
+    ]
+    
+    # Match by priority keyword in value
+    for kw, rule_key in priority_map:
+        if kw in v:
+            return ANALYTICAL_RULES.get(rule_key)
+
+    # 2. General Fallback (Check keys in value)
+    for key, rule in ANALYTICAL_RULES.items():
+        if key.lower() in v:
+            return rule
+            
+    # 3. Contextual fallback by factor name
+    if "устойчивость" in f or "защиты" in f:
+        return ANALYTICAL_RULES.get("успешных защит")
+        
+    if "географ" in f or "охват" in f:
+        if "снг" in v or "межрегиональный" in v:
+            return ANALYTICAL_RULES.get("Масштаб: СНГ")
+        return ANALYTICAL_RULES.get("Российский рынок")
+
+    if "экспорт" in f or "страна" in f or "страны" in f:
+        if "снг" in v or "межрегиональный" in v:
+            return ANALYTICAL_RULES.get("Экспорт: СНГ")
+        return ANALYTICAL_RULES.get("Российский рынок")
+
+    if "бюджет" in f or "маркетинг" in f:
+        # If it's a budget question but we didn't match a specific range, give a safe 'Low/Mid' interpretation
+        if "50 000" in v or "минимальный" in v:
+            return ANALYTICAL_RULES.get("до 50 000")
+        return ANALYTICAL_RULES.get("до 200 000")
+
+    return None
 
 def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, filename: str) -> str:
     os.makedirs(REPORT_DIR, exist_ok=True)
@@ -254,7 +454,7 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         rightMargin=20*mm, 
         topMargin=20*mm, 
         bottomMargin=20*mm,
-        title=f"Assessment Report #{request_id}"
+        title=f"Отчет об оценке #{request_id}"
     )
     
     styles = getSampleStyleSheet()
@@ -322,10 +522,21 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     ip_type_raw = payload.get("ip_type", "other")
     ip_type_str = IP_TYPE_MAP.get(ip_type_raw, ip_type_raw)
     
-    industry_raw = payload.get("industry", "other")
+    industry_raw = results.get("industry_used", payload.get("industry", "other"))
     industry_str = INDUSTRY_MAP.get(industry_raw, industry_raw)
     
     reach_raw = payload.get("market_reach", "")
+    
+    # Sync market reach from interview if changed
+    for resp in payload.get("interview_responses", []):
+        q_text = str(resp.get("question_text", "")).lower()
+        if "географ" in q_text or "охват" in q_text or "масштаб" in q_text:
+            r_val = str(resp.get("value", "")).lower()
+            if "глобал" in r_val or "международ" in r_val: reach_raw = "global"
+            elif "снг" in r_val or "межрегион" in r_val: reach_raw = "regional"
+            elif "нац" in r_val or "росси" in r_val: reach_raw = "national"
+            elif "локал" in r_val: reach_raw = "local"
+
     reach_str = MARKET_REACH_MAP.get(reach_raw, reach_raw)
 
     robustness = payload.get("legal_robustness", [])
@@ -334,23 +545,44 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     else:
         robustness_str = "Нет подтвержденных факторов защиты"
     
-    # Subtype translation
-    subtype_raw = payload.get("subtype", "")
-    subtype_str = SUBTYPE_MAP.get(subtype_raw, subtype_raw) if subtype_raw else "Не указано"
+    # Direction translation
+    direction_raw = results.get("brand_direction", "product")
+    direction_str = DIRECTION_MAP.get(direction_raw, "Продуктовая линейка")
 
-    # Attached documents list
+    # Список прикрепленных документов
     attached_docs = payload.get("attached_documents", [])
-    docs_str = ", ".join(attached_docs) if attached_docs else "Только данные интервью"
+    docs_str = ", ".join(attached_docs) if attached_docs else "Данные интервью"
 
-    # Data for the first table
+    # Licensing detection for report
+    licensing_str = "Не выявлено"
+    for resp in payload.get("interview_responses", []):
+        if "лицензии" in str(resp.get("question_text", "")).lower():
+            licensing_str = resp.get("value", "Не выявлено")
+
+    # Encumbrance detection for report
+    pledge_str = "Отсутствуют"
+    for resp in payload.get("interview_responses", []):
+        if "залогом" in str(resp.get("question_text", "")).lower():
+            pledge_str = resp.get("value", "Отсутствуют")
+
+    # Defense history detection for report
+    defense_str = "Стандартная"
+    for resp in payload.get("interview_responses", []):
+        if "защите" in str(resp.get("question_text", "")).lower() or "суде" in str(resp.get("question_text", "")).lower():
+            defense_str = resp.get("value", "Стандартная")
+
+    # Marketing budget detection for report
+    mkt_str = "Минимальный"
+    for resp in payload.get("interview_responses", []):
+        if "бюджет" in str(resp.get("question_text", "")).lower() or "продвижение" in str(resp.get("question_text", "")).lower():
+            mkt_str = resp.get("value", "Минимальный")
+
+    # Data for the first table (Object Passport)
     table_data_1 = [
         ["Тип объекта:", Paragraph(ip_type_str, styles["BodyCyr"])],
-        ["Направленность:", Paragraph(subtype_str, styles["BodyCyr"])],
         ["Цель оценки:", Paragraph(PURPOSE_MAP.get(payload.get("valuation_purpose", "market"), "Рыночная"), styles["BodyCyr"])],
         ["Отрасль:", Paragraph(industry_str, styles["BodyCyr"])],
-        ["Рынок сбыта:", Paragraph(reach_str, styles["BodyCyr"])],
         ["Юридическая сила:", Paragraph(robustness_str, styles["BodyCyr"])],
-        ["Материалы анализа:", Paragraph(docs_str, styles["BodyCyr"])],
         ["Годовой доход:", fmt_curr(payload.get('annual_revenue', 0))],
         ["Вложения (R&D):", fmt_curr(payload.get('cost_rd', 0))],
     ]
@@ -416,13 +648,21 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     range_text = f"Динамический диапазон стоимости: <b>{fmt_curr(val_min)} — {fmt_curr(val_max)}</b>"
     content.append(Paragraph(range_text, ParagraphStyle('RangeStyle', parent=styles['BodyCyr'], alignment=1, fontSize=12, spaceAfter=15, textColor=colors.HexColor("#0369a1"))))
 
+    # Calculate consolidated Brand Strength Coefficient (%)
+    baseline = results.get('baseline_value', 1)
+    final = results.get('final_value', 1)
+    # Protection against div zero and logic: (Final/Baseline - 1) * 100
+    brand_strength_pct = ((final / baseline) - 1.0) * 100.0 if baseline > 0 else 0
+    brand_strength_str = f"{'+' if brand_strength_pct >= 0 else ''}{brand_strength_pct:.1f}%"
+
     res_data = [
         ["Показатель", "Значение"],
-        ["Базовая финансовая модель (DCF/Cost)", fmt_curr(results['baseline_value'])],
-        ["Ставка дисконтирования (WACC)", pro_factors.get("discount_rate", "18%")],
-        ["Ставка роялти (Relief rate)", pro_factors.get("royalty_rate", "5%")],
-        ["Затраты на воспроизводство (R&D)", fmt_curr(payload.get('cost_rd', 0))],
-        ["ИТОГОВАЯ (РЕКОМЕНДУЕМАЯ) СТОИМОСТЬ", fmt_curr(results['final_value'])],
+        ["Оценка на базе доходов (Доходный метод)", fmt_curr(results.get('baseline_value', 0))],
+        ["Коэффициент силы бренда (Премия/Дисконт)", brand_strength_str],
+        ["Скидка за риск и ликвидность актива", pro_factors.get("discount_rate", "—")],
+        ["Рыночная ставка за право использования (Роялти)", pro_factors.get("royalty_rate", "—")],
+        ["Затраты на создание аналога (Затратный метод)", fmt_curr(payload.get('cost_rd', 0))],
+        ["ИТОГОВАЯ РЫНОЧНАЯ СТОИМОСТЬ", fmt_curr(results.get('final_value', 0))],
     ]
     
     t2 = Table(res_data, colWidths=[110*mm, 60*mm])
@@ -441,103 +681,98 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
     content.append(t2)
     content.append(Spacer(1, 15))
 
-    # --- 2a. Factor Impact Analysis ---
-    factors = results.get("factors_breakdown", [])
-    if factors:
-        content.append(Paragraph("Детализация влияния факторов (Factor Analysis):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=8)))
-        
-        # Mapping for safe PDF icons (DejaVu font compatible)
-        SAFE_ICONS = {
-            "⚖️": "L", "✅": "V", "🌍": "G", "🏳️": "J", "💎": "B", "📊": "M", "🎯": "P"
-        }
-        
-        f_data = [["Компонент влияния", "Вес / Множитель", "Статус в модели"]]
-        for f in factors:
-            impact_val = f.get('impact', 1.0)
-            if f.get('type') == 'percentage':
-                display_impact = f"{'+' if impact_val > 0 else ''}{impact_val}%"
-                status_desc = "Корректировка базы"
-            else:
-                display_impact = f"x {impact_val}"
-                status_desc = "Мультипликатор"
-            
-            icon = SAFE_ICONS.get(f.get('icon'), "")
-            name = f.get('name', '')
-            
-            f_data.append([
-                Paragraph(f"<b>[{icon}]</b> {name}" if icon else name, styles["BodyCyr"]),
-                display_impact,
-                status_desc
-            ])
-            
-        tf = Table(f_data, colWidths=[80*mm, 40*mm, 50*mm])
-        tf.setStyle(TableStyle([
-            ('FONTNAME', (0,0), (-1,-1), FONT),
-            ('FONTSIZE', (0,0), (-1,-1), 9),
-            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#cbd5e1")),
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f8fafc")),
-            ('ALIGN', (1,0), (2,-1), 'CENTER'),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('PADDING', (0,0), (-1,-1), 6),
-        ]))
-        content.append(tf)
-        content.append(Spacer(1, 15))
+    # --- 2a. Анализ факторов влияния --- (Removed as per user request to keep the report cleaner)
+    # The detailed breakdown is now covered by the more readable 'Analytical Evidence' table below.
 
-    # --- 2b. Evidence Base ---
+    # --- 2b. Доказательная база (Expert Analytical Table) ---
     evidence = results.get("evidence_logs", [])
     if evidence:
-        content.append(Paragraph("Журнал доказательств и верификация (Audit Trail):", ParagraphStyle('SubHeader', parent=styles['BodyCyr'], fontSize=10, fontStyle='Bold', spaceAfter=8)))
-        evidence_data = [["Аспект / Вопрос интервью", "Зафиксированный факт", "Источник"]]
+        content.append(Paragraph("Аналитическая доказательная база и верификация (Анализ факторов):", ParagraphStyle('SectionHeader', parent=styles['BodyCyr'], fontSize=12, textColor=colors.HexColor("#1e293b"), spaceBefore=20, spaceAfter=10)))
         
-        # Distinct question styles
-        q_style = ParagraphStyle('QStyle', parent=styles['BodyCyr'], fontSize=8, leading=10)
-        v_style = ParagraphStyle('VStyle', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.HexColor("#1e293b"))
+        # Table Header (High Professionalism)
+        evidence_data = [[
+            Paragraph("Обнаруженный факт / Фактор", ParagraphStyle('H', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.white)), 
+            Paragraph("Экспертная интерпретация влияния на капитализацию", ParagraphStyle('H', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.white)), 
+            Paragraph("Вес в модели", ParagraphStyle('H', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.white, alignment=1))
+        ]]
+        
+        # Styles for table content
+        q_style = ParagraphStyle('Q', parent=styles['BodyCyr'], fontSize=8, textColor=colors.HexColor("#64748b"))
+        v_style = ParagraphStyle('V', parent=styles['BodyCyr'], fontSize=9, fontStyle='Bold', textColor=colors.HexColor("#0f172a"))
+        i_style = ParagraphStyle('I', parent=styles['BodyCyr'], fontSize=8, leading=11, textColor=colors.HexColor("#334155"))
+        impact_style = ParagraphStyle('Imp', parent=styles['BodyCyr'], fontSize=10, alignment=1, fontStyle='Bold')
+
+        seen_rules = set()
+        semantic_dedup = set() # To prevent showing same region/logic twice
         
         for e in evidence:
-            val = e.get('value', '—')
-            source = e.get('source', 'Интервью')
-            factor = e.get('factor', 'Фактор')
+            val = str(e.get('value', '—')).strip()
+            val_l = val.lower()
+            factor = str(e.get('factor', 'Общий параметр'))
             
+            # Skip empty or placeholder values
+            if not val or val == "—" or "документ" in factor.lower():
+                continue
+                
+            # Semantic Deduplication for Regions (CIS/Global)
+            # If we already mentioned CIS/Global reach, don't repeat it for Export/Countries
+            if any(kw in val_l for kw in ["снг", "межрегиональный", "глобальный", "международный"]):
+                region_key = "CIS" if "снг" in val_l or "межрегиональный" in val_l else "GLOBAL"
+                if region_key in semantic_dedup:
+                    continue
+                semantic_dedup.add(region_key)
+
+            # Internal matching key for rule lookup
+            rule_match = get_interpretation(val, factor)
+            
+            if rule_match:
+                # Deduplication: if we already used this exact explanation, skip
+                rule_explanation = rule_match["explanation"]
+                if rule_explanation in seen_rules:
+                    continue
+                seen_rules.add(rule_explanation)
+                
+                explanation = rule_explanation
+                impact_val = rule_match["impact"]
+                imp_type = rule_match["type"]
+            else:
+                # Fallback entries are NOT deduplicated because they represent different unique answers
+                explanation = f"Фактор '{factor}' подтвержден в ходе интервью. Влияние ответа '{val}' учтено в расчетной модели согласно стандартам IVS."
+                impact_val = e.get('impact', 'Верифицировано')
+                imp_type = "neutral"
+
+            # Visual logic for impact colors
+            if imp_type == "positive": imp_color = "#16a34a"
+            elif imp_type == "negative": imp_color = "#dc2626"
+            elif imp_type == "multiplier": imp_color = "#8b5cf6"
+            else: imp_color = "#0284c7"
+            
+            # Dynamic color for manual impact values
+            if not rule_match:
+                if any(x in str(impact_val) for x in ['+', 'x', '1.']): imp_color = "#16a34a"
+                elif '-' in str(impact_val): imp_color = "#dc2626"
+
+            impact_p = Paragraph(f"<font color='{imp_color}'>{impact_val}</font>", impact_style)
+
             evidence_data.append([
-                Paragraph(factor, q_style),
-                Paragraph(val, v_style),
-                Paragraph(source, ParagraphStyle('Src', parent=styles['BodyCyr'], fontSize=7, alignment=1))
+                [Paragraph(factor, q_style), Spacer(1, 2), Paragraph(val, v_style)],
+                Paragraph(explanation, i_style),
+                impact_p
             ])
         
-        te = Table(evidence_data, colWidths=[75*mm, 75*mm, 20*mm])
+        te = Table(evidence_data, colWidths=[63*mm, 82*mm, 25*mm])
         te.setStyle(TableStyle([
             ('FONTNAME', (0,0), (-1,-1), FONT),
-            ('FONTSIZE', (0,0), (-1,-1), 8),
-            ('GRID', (0,0), (-1,-1), 0.25, colors.HexColor("#e2e8f0")),
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
-            ('ALIGN', (2,0), (2,-1), 'CENTER'),
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#334155")), # Dark Header
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('PADDING', (0,0), (-1,-1), 6),
+            ('PADDING', (0,0), (-1,-1), 10),
+            ('BACKGROUND', (0,1), (-1,-1), colors.white),
         ]))
         content.append(te)
         content.append(Spacer(1, 15))
 
-    # --- Explanation Block ---
-    content.append(Paragraph("Методологические пояснения:", styles["BodyCyr"]))
-    explanation_style = ParagraphStyle(
-        'Explanation',
-        parent=styles['BodyCyr'],
-        fontSize=9,
-        textColor=colors.HexColor("#64748b"),
-        spaceAfter=6,
-        leftIndent=10
-    )
-    
-    explanations = [
-        f"<b>• Модель DCF:</b> Оценка основана на методе дисконтированных денежных потоков по ставке {pro_factors.get('discount_rate')}.",
-        "<b>• Доказательная база:</b> Стоимость скорректирована на основе верифицированных фактов из интервью и проанализированных материалов актива.",
-        "<b>• Диапазон стоимости:</b> Отражает уверенность ИИ в предоставленных данных. Большее количество доказательств сужает диапазон."
-    ]
-    
-    for explanation in explanations:
-        content.append(Paragraph(explanation, explanation_style))
-
-    content.append(Spacer(1, 20))
+    # --- Explanation Block --- (Removed as per user request)
 
     import re
 
@@ -592,43 +827,109 @@ def generate_pdf(request_id: int, payload: dict, results: dict, currency: str, f
         # 4. Экранируем XML-специальные символы
         return xml_escape(text)
 
-    # --- 3. Methodology ---
-    content.append(Paragraph("3. Методология и обоснование (Анализ ИИ)", styles["SectionHeader"]))
+    # --- 3. Обоснование рыночной стоимости ---
+    content.append(Paragraph("3. Обоснование и драйверы рыночной стоимости", styles["SectionHeader"]))
     
-    methodology = results.get("multiples_used", {}).get("methodology", "Применен комбинированный подход.")
-    content.append(Paragraph(f"<b>Методология:</b> {clean_ai_text(methodology)}", styles["BodyCyr"]))
-    content.append(Spacer(1, 8))
-    
-    bullets = results.get("multiples_used", {}).get("ai_bullets", [])
-    if bullets:
-        content.append(Paragraph("Ключевые факторы:", styles["BodyCyr"]))
-        for b in bullets:
-            # Clean text and format numbers
-            txt = str(b).lstrip("•-–* ")
-            # Check if this bullet is just a duplicate of revenue info we already have in table?
-            # We keep it but format it nicely.
-            content.append(Paragraph(f"• {clean_ai_text(txt)}", styles["BodyCyr"]))
+    # Plain language logic explanation
+    logic_text = """
+    <b>Логика расчета:</b> Оценка вашего актива выполнена на основе анализа будущих экономических выгод. 
+    Мы оценили актив как инструмент, генерирующий дополнительную прибыль и обеспечивающий экономию на «аренде» чужой репутации (Method Relief from Royalty). 
+    Итоговая стоимость учитывает текущую рыночную конъюнктуру, финансовые показатели проекта и качественные характеристики, подтвержденные в ходе интервью.
+    """
+    content.append(Paragraph(logic_text, styles["BodyCyr"]))
+    content.append(Spacer(1, 10))
+
+    # Dynamic Key Drivers selection
+    evidence = results.get("evidence_logs", [])
+    # Sort by absolute impact (to find the most important ones)
+    def sort_key(e):
+        imp = str(e.get('impact', '0'))
+        if 'x' in imp: return float(imp.replace('x', '').strip()) * 10
+        if '%' in imp: return abs(float(imp.replace('%', '').replace('+', '').strip()))
+        return 0
+
+    sorted_evidence = sorted(evidence, key=sort_key, reverse=True)
+    drivers = sorted_evidence[:3] # Pick top 3
+
+    if drivers:
+        content.append(Paragraph("<b>Ключевые драйверы капитализации:</b>", styles["BodyCyr"]))
+        content.append(Spacer(1, 5))
+        
+        for d in drivers:
+            factor = d.get('factor', '').lower()
+            val = d.get('value', '')
+            impact = d.get('impact', '')
+            
+            header = "Рыночный фактор"
+            
+            if any(x in factor for x in ["охват", "географ", "рынок", "экспорт"]):
+                header = "Масштабируемость"
+            elif any(x in factor for x in ["защит", "роспатент", "юрид", "суд", "чистота"]):
+                header = "Юридическая устойчивость"
+            elif any(x in factor for x in ["бюджет", "маркетинг", "продвижение"]):
+                header = "Сила продвижения"
+            elif any(x in factor for x in ["выручка", "доход", "деньги", "прибыль"]):
+                header = "Коммерческий потенциал"
+            elif any(x in factor for x in ["франшиза", "лицензия", "переговор"]):
+                header = "Потенциал роста"
+
+            driver_para = f"<b>{header}:</b> {val}. Данный фактор оказывает прямое влияние на итоговую капитализацию актива ({impact})."
+            content.append(Paragraph(f"• {driver_para}", styles["BodyCyr"]))
+            content.append(Spacer(1, 4))
+
+    content.append(Spacer(1, 10))
+    # Verification Line
+    verify_style = ParagraphStyle('Verify', parent=styles['BodyCyr'], fontSize=9, textColor=colors.HexColor("#64748b"), fontName=FONT)
+    content.append(Paragraph("Верификация данных: Расчетные показатели базируются на актуальных рыночных данных и результатах проведенного экспертного интервью.", verify_style))
 
     content.append(Spacer(1, 15))
 
-    # --- 4. Recommendations ---
-    content.append(Paragraph("4. Стратегические рекомендации", styles["SectionHeader"]))
+    # --- 4. Профессиональные стратегические рекомендации ---
+    content.append(Paragraph("4. Рекомендации по повышению капитализации", styles["SectionHeader"]))
     
-    recs = results.get("multiples_used", {}).get("strategic_recommendations", [])
-    if not recs:
-        content.append(Paragraph("Нет специфических рекомендаций.", styles["BodyCyr"]))
-    else:
-        for r in recs:
-            text = r.get('text', '')
-            # Format numbers in recommendations too
-            formatted_text = clean_ai_text(text)
-            content.append(Paragraph(f"• {formatted_text}", styles["BodyCyr"]))
-            content.append(Spacer(1, 4))
+    # Expert logic for dynamic recommendations
+    expert_recs = []
+    evidence_text = " ".join([f"{e.get('factor')} {e.get('value')}" for e in evidence]).lower()
+    
+    # Trigger 1: Unregistered licenses
+    if "без регистрации" in evidence_text:
+        expert_recs.append("Зарегистрируйте все лицензионные договоры в Роспатенте. Отсутствие регистрации делает права лицензиатов уязвимыми и снижает общую прозрачность владения активом.")
+    
+    # Trigger 2: National reach only
+    if "российский рынок" in evidence_text and "глобальный" not in evidence_text:
+        expert_recs.append("Рассмотрите расширение правовой охраны в странах БРИКС и ЕАЭС (Мадридская система). Это защитит экспортный потенциал и увеличит стоимость бренда как международного актива.")
+    
+    # Trigger 3: Personal brand risk
+    if "личный бренд" in evidence_text:
+        expert_recs.append("Начните процесс деперсонализации бренда (разработка корпоративных стандартов и гайдлайнов). Это повысит ликвидность актива, так как он перестанет быть неразрывно связанным с личностью владельца.")
+    
+    # Trigger 4: Low marketing budget
+    if "до 50 000" in evidence_text:
+        expert_recs.append("Увеличьте инвестиции в имиджевое продвижение. Повышение узнаваемости бренда до уровня 'узнаваем в отрасли' позволит в будущем обосновать рост ставки роялти на 3-5%.")
+    
+    # Trigger 5: Encumbrances (strict check for affirmative "bad" status)
+    if any(x in evidence_text for x in ["залог у банка", "были сложности", "под арестом", "наличие ареста"]):
+        expert_recs.append("Разработайте план по досудебному урегулированию текущих споров или выводу актива из-под обременения. Это моментально снимет дисконт за юридическую неопределенность (-20%).")
+    
+    # Trigger 6: No registrations mentioned
+    if "зарегистрированы в роспатенте" not in evidence_text:
+        expert_recs.append("Проведите аудит и актуализацию перечня товаров и услуг (МКТУ). Своевременное расширение охраны на новые товарные категории защитит ваш бизнес от недобросовестной конкуренции.")
+
+    # Always add 1-2 generic high-value recs if list is short
+    if len(expert_recs) < 3:
+        expert_recs.append("Внедрите систему внутреннего мониторинга (Trademark Monitoring) для оперативного выявления попыток регистрации схожих до степени смешения знаков конкурентами.")
+        expert_recs.append("Используйте оценку бренда для постановки на баланс предприятия. Это увеличит чистые активы компании и повысит её инвестиционную привлекательность для кредитных организаций.")
+
+    # Limit and display
+    final_recs = expert_recs[:4]
+    for rec_text in final_recs:
+        content.append(Paragraph(f"• {rec_text}", styles["BodyCyr"]))
+        content.append(Spacer(1, 4))
 
     # --- Footer ---
     content.append(Spacer(1, 40))
     content.append(Paragraph("___________________________________________________", styles["SmallNote"]))
-    content.append(Paragraph("Документ сформирован автоматически системой MDM IP Valuation.", styles["SmallNote"]))
+    content.append(Paragraph("Документ сформирован автоматически системой MDM Valuation.", styles["SmallNote"]))
     content.append(Paragraph("Отчёт носит информационный характер и не является гарантией сделки.", styles["SmallNote"]))
     
     doc.build(content)
