@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Head from "next/head";
-import KBAgentFox from "../components/KBAgentFox";
 import {
   Shield,
   Zap,
@@ -336,7 +335,6 @@ export default function Landing() {
           </p>
         </div>
       </footer>
-      <KBAgentFox />
 
       <style jsx>{`
         @keyframes float {
