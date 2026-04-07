@@ -80,7 +80,7 @@ export default function IPObjectsPage() {
 
   // Create form
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<IPType>("literary_work");
+  const [type, setType] = useState<IPType>("trademark");
   const [subtype, setSubtype] = useState("");
   const [creating, setCreating] = useState(false);
   const [err, setErr] = useState("");
@@ -407,31 +407,31 @@ export default function IPObjectsPage() {
                   setSubtype("");
                 }}
               >
-                <optgroup label="Результаты творчества">
-                  <option value="literary_work text-white">{IP_TYPES_RU.literary_work}</option>
-                  <option value="software">{IP_TYPES_RU.software}</option>
-                  <option value="database">{IP_TYPES_RU.database}</option>
-                  <option value="performance">{IP_TYPES_RU.performance}</option>
-                  <option value="phonogram">{IP_TYPES_RU.phonogram}</option>
-                  <option value="broadcast">{IP_TYPES_RU.broadcast}</option>
-                </optgroup>
-                <optgroup label="Промышленная собственность">
-                  <option value="invention">{IP_TYPES_RU.invention}</option>
-                  <option value="utility_model">{IP_TYPES_RU.utility_model}</option>
-                  <option value="industrial_design">{IP_TYPES_RU.industrial_design}</option>
-                  <option value="plant_variety">{IP_TYPES_RU.plant_variety}</option>
-                  <option value="topology">{IP_TYPES_RU.topology}</option>
-                </optgroup>
-                <optgroup label="Бренды">
+                <optgroup label="Бренды и ТЗ">
                   <option value="trademark">{IP_TYPES_RU.trademark}</option>
-                  <option value="trade_name">{IP_TYPES_RU.trade_name}</option>
-                  <option value="commercial_designation">{IP_TYPES_RU.commercial_designation}</option>
-                  <option value="geographical_indication">{IP_TYPES_RU.geographical_indication}</option>
+                  <option value="trade_name" disabled>{IP_TYPES_RU.trade_name} (В разработке)</option>
+                  <option value="commercial_designation" disabled>{IP_TYPES_RU.commercial_designation} (В разработке)</option>
+                  <option value="geographical_indication" disabled>{IP_TYPES_RU.geographical_indication} (В разработке)</option>
                 </optgroup>
-                <optgroup label="Ноу-хау">
-                  <option value="know_how">{IP_TYPES_RU.know_how}</option>
+                <optgroup label="Результаты творчества (В разработке)">
+                  <option value="literary_work" disabled>{IP_TYPES_RU.literary_work} (В разработке)</option>
+                  <option value="software" disabled>{IP_TYPES_RU.software} (В разработке)</option>
+                  <option value="database" disabled>{IP_TYPES_RU.database} (В разработке)</option>
+                  <option value="performance" disabled>{IP_TYPES_RU.performance} (В разработке)</option>
+                  <option value="phonogram" disabled>{IP_TYPES_RU.phonogram} (В разработке)</option>
+                  <option value="broadcast" disabled>{IP_TYPES_RU.broadcast} (В разработке)</option>
                 </optgroup>
-                <option value="other">{IP_TYPES_RU.other}</option>
+                <optgroup label="Промышленная собственность (В разработке)">
+                  <option value="invention" disabled>{IP_TYPES_RU.invention} (В разработке)</option>
+                  <option value="utility_model" disabled>{IP_TYPES_RU.utility_model} (В разработке)</option>
+                  <option value="industrial_design" disabled>{IP_TYPES_RU.industrial_design} (В разработке)</option>
+                  <option value="plant_variety" disabled>{IP_TYPES_RU.plant_variety} (В разработке)</option>
+                  <option value="topology" disabled>{IP_TYPES_RU.topology} (В разработке)</option>
+                </optgroup>
+                <optgroup label="Прочее (В разработке)">
+                  <option value="know_how" disabled>{IP_TYPES_RU.know_how} (В разработке)</option>
+                  <option value="other" disabled>{IP_TYPES_RU.other} (В разработке)</option>
+                </optgroup>
               </select>
             </div>
 

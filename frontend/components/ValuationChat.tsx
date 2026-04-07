@@ -13,7 +13,7 @@ interface ValuationChatProps {
     onValuationComplete: (res: any) => void;
 }
 
-type InterviewPhase = 'selection' | 'scenario' | 'financials' | 'calculating' | 'finished';
+type InterviewPhase = 'selection' | 'scenario' | 'industry' | 'financials' | 'calculating' | 'finished';
 
 export default function ValuationChat({ onValuationComplete }: ValuationChatProps) {
     const [messages, setMessages] = useState<Message[]>([
@@ -28,7 +28,8 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         annual_revenue: 0,
         cost_rd: 0,
         interview_responses: [],
-        subtype: ''
+        subtype: '',
+        industry: 'it'
     });
     const [scenarioTitle, setScenarioTitle] = useState('Аудит актива');
     const [financialStep, setFinancialStep] = useState(0); // 0: revenue, 1: r&d
@@ -73,6 +74,20 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         const typeKey = (ip.type || 'other').toLowerCase();
         const typeRus = IP_TYPES_RU[typeKey as keyof typeof IP_TYPES_RU] || ip.type || 'Актив';
 
+        // План: Ограничиваем оценку только брендами для ВКР
+        const isSupported = typeKey === 'trademark';
+
+        if (!isSupported) {
+            setMessages(prev => [...prev,
+            { role: 'user', content: `Выбираю объект: ${ip.title}` },
+            {
+                role: 'bot',
+                content: `На текущем этапе разработки модуль интеллектуальной оценки (Deep AI Valuation) полностью откалиброван для Товарных знаков. Оценка типа "${typeRus}" находится в режиме закрытого тестирования. Пожалуйста, выберите Товарный знак для демонстрации всех возможностей системы.`
+            }
+            ]);
+            return;
+        }
+
         setSelectedIP(ip);
         setMessages(prev => [...prev,
         { role: 'user', content: `Выбираю объект: ${ip.title}` },
@@ -105,6 +120,15 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         }
     };
 
+    const handleSelectIndustry = (code: string, label: string) => {
+        setForm(f => ({ ...f, industry: code }));
+        setMessages(prev => [...prev,
+        { role: 'user', content: `Отрасль: ${label}` },
+        { role: 'bot', content: 'Отлично. Ставки роялти и рисков настроены. Теперь перейдем к экономике. Укажите годовую выручку актива (₽). Если её пока нет, введите 0.' }
+        ]);
+        setPhase('financials');
+    };
+
     const handleSend = async () => {
         if (!inputValue.trim() || loading) return;
         const userMsg = inputValue;
@@ -115,25 +139,28 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
         // Имитация раздумий ИИ
         setTimeout(async () => {
             if (phase === 'scenario') {
-                // Обновляем данные формы
+                // ... (логика обновления ответов)
                 setForm(f => ({
                     ...f,
                     interview_responses: [...f.interview_responses, {
                         question_group: scenarioTitle,
-                        question_text: questions[currentQuestionIdx], // Добавляем текст вопроса
+                        question_text: questions[currentQuestionIdx],
                         value: userMsg,
                         status: 'confirmed'
                     }]
                 }));
 
-                // Логика перехода к следующему вопросу (ВНЕ setForm)
                 const nextIdx = currentQuestionIdx + 1;
                 if (nextIdx < questions.length) {
                     setMessages(prev => [...prev, { role: 'bot', content: questions[nextIdx], type: 'question' }]);
                     setCurrentQuestionIdx(nextIdx);
                 } else {
-                    setPhase('financials');
-                    setMessages(prev => [...prev, { role: 'bot', content: 'Понял. Теперь перейдем к экономике. Укажите примерную годовую выручку, которую приносит этот актив (в рублях). Если продукт новый, напишите 0.' }]);
+                    // Переход к ВЫБОРУ ОТРАСЛИ (вместо экономики)
+                    setPhase('industry');
+                    setMessages(prev => [...prev, {
+                        role: 'bot',
+                        content: 'На основе ваших ответов я подготовил рыночные коэффициенты. Пожалуйста, подтвердите отрасль вашего актива для применения стандартов IVS:'
+                    }]);
                 }
             } else if (phase === 'financials') {
                 const val = parseFloat(userMsg.replace(/[^0-9.]/g, '')) || 0;
@@ -162,20 +189,19 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
 
         try {
             const payload = {
-                ...finalData,
                 ip_object_id: selectedIP?.id,
                 ip_type: selectedIP?.type || 'software',
                 jurisdictions: ['RU'],
                 brand_strength: 5,
-                royalty_rate: 3.5,
+                royalty_rate: 0,
                 remaining_years: 5,
                 market_reach: 'national',
-                industry: 'it',
                 currency: 'RUB',
                 legal_robustness: ['registered'],
                 scope_protection: 5,
                 valuation_purpose: 'market',
-                subtype_metrics: {}
+                subtype_metrics: {},
+                ...finalData, // Твой выбор (отрасль и т.д.) перекрывает дефолты
             };
 
             const r = await fetch('/api/valuation/estimate', {
@@ -267,6 +293,194 @@ export default function ValuationChat({ onValuationComplete }: ValuationChatProp
                                         {ipObjects.length === 0 && !loading && (
                                             <p className="text-[10px] text-rose-400 uppercase font-black px-4">Нет доступных активов в портфеле</p>
                                         )}
+                                    </div>
+                                )}
+
+                                {/* Выбор направленности знака */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('направленность знака') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'corp', n: 'Корпоративный бренд' },
+                                            { id: 'prod', n: 'Продуктовая линейка' },
+                                            { id: 'retail', n: 'Торговая сеть' },
+                                            { id: 'personal', n: 'Личный бренд' },
+                                            { id: 'franchise', n: 'Франшиза' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-indigo-500/20 hover:border-indigo-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор географии (Market Reach) */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('других странах') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'national', n: 'Только Россия (Нац.)' },
+                                            { id: 'regional', n: 'СНГ / Ближнее зарубежье' },
+                                            { id: 'global', n: 'Глобальный (Экспорт)' },
+                                            { id: 'local', n: 'Локальный рынок (Регион)' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор лицензионной истории */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('лицензии на использование') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'rospatent', n: 'Да, зарегистрированы в Роспатенте' },
+                                            { id: 'simple', n: 'Да, без регистрации' },
+                                            { id: 'planned', n: 'В процессе переговоров' },
+                                            { id: 'none', n: 'Нет, используем единолично' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор обременений (Pledge) */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('под залогом в банке') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'none', n: 'Нет, обременений нет' },
+                                            { id: 'bank', n: 'Да, в залоге у банка' },
+                                            { id: 'dispute', n: 'Да, судебные споры / арест' },
+                                            { id: 'lease', n: 'Ограничено лицензией' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-rose-500/20 hover:border-rose-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор истории защиты (Defense History) */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('защиты бренда в суде') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'win_many', n: 'Да, несколько успешных защит' },
+                                            { id: 'win_one', n: 'Был один успешный кейс' },
+                                            { id: 'neutral', n: 'Споров не было, бренд надежен' },
+                                            { id: 'risk', n: 'Были сложности / частичные отказы' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-amber-500/20 hover:border-amber-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор бюджета на продвижение (Budget) */}
+                                {phase === 'scenario' && m.role === 'bot' && m.content.includes('бюджет на продвижение') && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
+                                        {[
+                                            { id: 'low', n: 'До 50 000 руб./мес.' },
+                                            { id: 'medium', n: '50 000 – 200 000 руб./мес.' },
+                                            { id: 'high', n: '200 000 – 1 000 000 руб./мес.' },
+                                            { id: 'pro', n: '1 000 000 – 5 000 000 руб./мес.' },
+                                            { id: 'leader', n: 'Свыше 5 млн руб./мес.' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                    setInputValue(opt.n);
+                                                    setTimeout(() => {
+                                                        const btn = document.getElementById('chat-send-btn');
+                                                        btn?.click();
+                                                    }, 50);
+                                                }}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-violet-500/20 hover:border-violet-500/50 transition-all text-[10px] font-bold text-white uppercase text-left pl-4"
+                                            >
+                                                {opt.n}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Выбор отрасали */}
+                                {phase === 'industry' && m.role === 'bot' && i === messages.length - 1 && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                        {[
+                                            { id: 'it', n: 'IT / ПО' },
+                                            { id: 'pharma', n: 'Фармацевтика' },
+                                            { id: 'manufacturing', n: 'Промышленность' },
+                                            { id: 'fintech', n: 'Финтех' },
+                                            { id: 'retail', n: 'Ритейл / Ткани' },
+                                            { id: 'fmcg', n: 'FMCG (Товары)' },
+                                            { id: 'energy', n: 'Энергетика' },
+                                            { id: 'agro', n: 'Агросектор' },
+                                            { id: 'horeca', n: 'HoReCa (Отели)' },
+                                            { id: 'media', n: 'Медиа / Кино' },
+                                            { id: 'services', n: 'Услуги' },
+                                            { id: 'education', n: 'Образование' },
+                                            { id: 'construction', n: 'Строительство' },
+                                            { id: 'other', n: 'Другое' }
+                                        ].map(ind => (
+                                            <button
+                                                key={ind.id}
+                                                onClick={() => handleSelectIndustry(ind.id, ind.n)}
+                                                className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all text-[9px] font-bold text-white uppercase tracking-tight leading-tight"
+                                            >
+                                                {ind.n}
+                                            </button>
+                                        ))}
                                     </div>
                                 )}
 
