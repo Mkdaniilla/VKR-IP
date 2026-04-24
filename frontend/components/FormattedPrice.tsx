@@ -16,7 +16,7 @@ export default function FormattedPrice({
     return (
         <span className={className}>
             <span suppressHydrationWarning>
-                {Math.round(value).toLocaleString(locale)}
+                {value.toLocaleString(locale)}
             </span>
             {" "}{currency}
         </span>

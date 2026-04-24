@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: false },
-  // output: "standalone",
+  output: "standalone",
   async rewrites() {
     // Проксируем /api/* на backend внутри сети докера
     const backend = process.env.BACKEND_INTERNAL_URL || "http://backend:8000";

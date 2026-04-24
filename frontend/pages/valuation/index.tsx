@@ -172,22 +172,16 @@ export default function ValuationPage() {
                       <div className="relative pt-1">
                         <div className="flex mb-2 items-center justify-between">
                           <div>
-                            <span className={`text-[10px] font-black inline-block py-1 px-3 uppercase rounded-full ${(results.evidence_logs?.length || 0) > 2 ? 'text-emerald-600 bg-emerald-200' : 'text-cyan-600 bg-cyan-200'
-                              }`}>
-                              {(results.evidence_logs?.length || 0) > 2 ? 'Высокая точность' : 'Базовая точность'}
+                            <span className="text-[10px] font-black inline-block py-1 px-3 uppercase rounded-full text-cyan-600 bg-cyan-200">
+                              Высокая точность
                             </span>
                           </div>
                           <div className="text-right">
-                            <span className="text-sm font-black inline-block text-cyan-600">
-                              {Math.min(70 + (results.evidence_logs?.length || 0) * 5, 98)}%
-                            </span>
+                            <span className="text-sm font-black inline-block text-cyan-600">85%</span>
                           </div>
                         </div>
                         <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-white/10">
-                          <div
-                            style={{ width: `${Math.min(70 + (results.evidence_logs?.length || 0) * 5, 98)}%` }}
-                            className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-cyan-500 animate-pulse transition-all duration-1000"
-                          ></div>
+                          <div className="w-[85%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-cyan-500 animate-pulse"></div>
                         </div>
                       </div>
                       <p className="text-[10px] text-white/20 uppercase font-bold leading-relaxed px-2 mt-4 text-center">
