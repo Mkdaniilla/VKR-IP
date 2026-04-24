@@ -4,9 +4,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-app}
-      # Hardcoded to match existing DB state and bypass incorrect .env
-      POSTGRES_PASSWORD: REMOVED_DB_PASSWORD
-      POSTGRES_DB: vkr_db
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-vkr_db}
     volumes:
       - vkr_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -21,12 +20,11 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      # Hardcoded URL to ensure connection to existing DB
-      DATABASE_URL: postgresql+psycopg2://${DB_USER:-app}:REMOVED_DB_PASSWORD@db:5432/vkr_db
-      SECRET_KEY: ${SECRET_KEY:-REMOVED_SECRET_KEY}
+      DATABASE_URL: postgresql+psycopg2://${DB_USER:-app}:${DB_PASSWORD}@db:5432/${DB_NAME:-vkr_db}
+      SECRET_KEY: ${SECRET_KEY}
       CORS_ORIGINS: http://mdmip.ru,https://mdmip.ru,http://www.mdmip.ru,https://www.mdmip.ru
-      OPENROUTER_API_KEY: REMOVED_OPENROUTER_KEY
-      OPENROUTER_MODEL: meta-llama/llama-3.3-70b-instruct:free
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-meta-llama/llama-3.3-70b-instruct:free}
     depends_on:
       db:
         condition: service_healthy
@@ -49,7 +47,7 @@ services:
     restart: always
     environment:
       BACKEND_INTERNAL_URL: http://backend:8000
-      NEXT_PUBLIC_API_URL: https://mdmip.ru/api
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://mdmip.ru/api}
     depends_on:
       backend:
         condition: service_healthy
